@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel TV - CPS</title>
+    <style>
+        :root { 
+            --red: #b30000; 
+            --gold: #f1c40f; 
+            --black: #000000;
+            --white: #ffffff;
+        }
+        
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            font-family: 'Arial Black', sans-serif;
+            background: var(--white);
+            overflow: hidden;
+            transition: background 0.4s ease;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centraliza verticalmente */
+            gap: 20px; /* Espaço entre os elementos */
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .priority-mode { background: var(--gold) !important; }
+
+        .logo-top { max-width: 250px; margin-bottom: 10px; }
+
+        /* Estilo do Balão Ajustado */
+        .comic-bubble {
+            background: white;
+            border: 8px solid var(--black); /* Borda um pouco mais fina */
+            border-radius: 40px;
+            padding: 30px 60px;
+            position: relative;
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40%; /* Largura reduzida */
+        }
+
+        /* Pontinha do balão reduzida */
+        .comic-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: 50px;
+            border-width: 30px 30px 0 0;
+            border-style: solid;
+            border-color: var(--black) transparent;
+            display: block;
+            width: 0;
+        }
+
+        #display-box { 
+            font-size: 15vw; /* Tamanho da senha reduzido para não estourar */
+            font-weight: 900; 
+            color: var(--red);
+            text-align: center;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .priority-mode #display-box { color: var(--black); }
+
+        .info-header {
+            font-size: 3rem;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+        }
+
+        #label-tipo { 
+            font-size: 3.5rem; 
+            font-weight: 900; 
+            color: var(--black);
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        #btn-som {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--black); color: white; border: none;
+            padding: 12px 25px; cursor: pointer; border-radius: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="bg-tv">
+        <img src="logo-cps.png" class="logo-top" alt="Logo CPS">
+
+        <div class="info-header">SENHA</div>
+        
+        <div class="comic-bubble">
+            <div id="display-box">---</div>
+        </div>
+        
+        <div id="label-tipo">AGUARDANDO...</div>
+
+        <button id="btn-som" onclick="ativarSom()">🔊 ATIVAR SOM</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    let ultimoIdChamada = "";
+
+    onValue(ref(db, 'chamada_ativa'), (snapshot) => {
+        const info = snapshot.val();
+        if (!info) return;
+
+        document.getElementById('display-box').innerText = info.senha;
+        document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'PRIORITÁRIA' : 'NORMAL';
+        document.getElementById('bg-tv').className = 'container ' + (info.tipo === 'P' ? 'priority-mode' : '');
+
+        if (info.id !== ultimoIdChamada) {
+            falar(info.senha, info.tipo);
+            ultimoIdChamada = info.id;
+        }
+    });
+
+    function falar(s, t) {
+        window.speechSynthesis.cancel();
+        const texto = (t === 'P' ? 'Prioridade. Senha ' : 'Senha ') + s.split('').join(' ');
+        const mensagem = new SpeechSynthesisUtterance(texto);
+        mensagem.lang = 'pt-BR';
+        mensagem.rate = 0.85;
+        window.speechSynthesis.speak(mensagem);
+    }
+
+    window.ativarSom = () => { 
+        window.speechSynthesis.speak(new SpeechSynthesisUtterance("Som ativo")); 
+        document.getElementById('btn-som').style.display = 'none';
+    };
+</script>
+</body>
+</html>
