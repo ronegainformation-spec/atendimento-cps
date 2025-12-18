@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senha Digital - CPS</title>
+    <style>
+        :root { --red: #b30000; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .container { width: 90%; max-width: 400px; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border-top: 10px solid var(--red); }
+        img { width: 150px; margin-bottom: 20px; }
+        h2 { color: #333; font-size: 1.2rem; margin-bottom: 25px; }
+        
+        button { width: 100%; padding: 20px; margin: 10px 0; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; color: white; transition: 0.2s; }
+        .btn-n { background: var(--red); }
+        .btn-p { background: #f1c40f; color: black; }
+        
+        /* Estilo da Senha Gerada */
+        #ticket-digital { display: none; animation: fadeIn 0.5s; }
+        .senha-viva { font-size: 5rem; font-weight: 900; color: var(--red); margin: 20px 0; display: block; }
+        .info { color: #666; font-size: 0.9rem; line-height: 1.5; }
+        .footer { margin-top: 20px; font-size: 0.8rem; color: #aaa; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app-content">
+    <img src="https://fatecead.com.br/wp-content/uploads/2021/01/logo-cps.png" alt="Logo CPS">
+    
+    <div id="selection-area">
+        <h2>Escolha seu atendimento:</h2>
+        <button class="btn-n" onclick="gerarDigital('N')">NORMAL</button>
+        <button class="btn-p" onclick="gerarDigital('P')">PRIORITÁRIO</button>
+        <p class="info" style="margin-top:20px;">Sua senha será exibida no painel da recepção.</p>
+    </div>
+
+    <div id="ticket-digital">
+        <h3 style="margin:0; color:#444;">SUA SENHA É:</h3>
+        <span id="res-senha" class="senha-viva">---</span>
+        <div id="res-tipo" style="font-weight:bold; text-transform:uppercase; margin-bottom:10px;"></div>
+        <p class="info">Por favor, aguarde na recepção.<br>O painel irá chamar seu número.</p>
+        <button onclick="location.reload()" style="background:#ddd; color:#666; font-size:0.9rem; padding:10px; margin-top:20px;">Retirar outra senha</button>
+    </div>
+
+    <div class="footer">Sistema de Senha Sustentável - CPS</div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.gerarDigital = (tipo) => {
+        const refContador = ref(db, 'contadores/totem_' + tipo);
+        
+        runTransaction(refContador, (current) => {
+            return (current || 0) + 1;
+        }).then((result) => {
+            if (result.committed) {
+                const num = result.snapshot.val().toString().padStart(3, '0');
+                const senhaGerada = tipo + num;
+
+                // Esconde seleção e mostra a senha
+                document.getElementById('selection-area').style.display = 'none';
+                document.getElementById('ticket-digital').style.display = 'block';
+                
+                document.getElementById('res-senha').innerText = senhaGerada;
+                document.getElementById('res-tipo').innerText = tipo === 'N' ? 'Atendimento Normal' : 'Atendimento Prioritário';
+                
+                // Vibração curta no celular (se suportado)
+                if (navigator.vibrate) navigator.vibrate(100);
+            }
+        });
+    };
+</script>
+</body>
+</html>
