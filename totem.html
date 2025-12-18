@@ -2,35 +2,75 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Totem de Senhas - CPS</title>
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .box { background: white; padding: 40px; border-radius: 30px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.15); width: 400px; border-top: 15px solid #b30000; }
-        button { width: 100%; padding: 30px; margin: 15px 0; font-size: 1.6rem; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; color: white; transition: 0.2s; }
-        .btn-n { background: #b30000; box-shadow: 0 8px 0 #700; }
-        .btn-p { background: #f1c40f; color: black; box-shadow: 0 8px 0 #987d0e; }
-        button:active { transform: translateY(4px); box-shadow: 0 2px 0 #333; }
-        @media print { body * { visibility: hidden; } #ticket { visibility: visible; position: absolute; left:0; top:0; width:100%; text-align:center; } }
-        #ticket { display: none; font-family: 'Courier New', monospace; border: 1px dashed #000; padding: 20px; }
+        :root { --red: #b30000; --gold: #f1c40f; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        /* Estilo do Totem na Tela */
+        .box { background: white; padding: 50px; border-radius: 40px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.15); width: 450px; border-top: 15px solid var(--red); }
+        .box img { max-width: 220px; margin-bottom: 20px; }
+        h2 { color: #333; margin-bottom: 30px; font-weight: 300; }
+        
+        button { width: 100%; padding: 30px; margin: 15px 0; font-size: 1.8rem; font-weight: 900; border: none; border-radius: 20px; cursor: pointer; color: white; transition: all 0.2s; position: relative; overflow: hidden; }
+        .btn-n { background: var(--red); box-shadow: 0 10px 0 #800; }
+        .btn-p { background: var(--gold); color: black; box-shadow: 0 10px 0 #b7950b; }
+        button:active { transform: translateY(6px); box-shadow: 0 4px 0 #333; }
+        
+        #status { margin-top: 20px; font-weight: bold; color: #666; min-height: 1.2em; }
+
+        /* ESTILO DO TICKET (O que sai na impressora) */
+        #ticket { display: none; }
+
+        @media print {
+            body { background: white; }
+            .box { display: none !important; } /* Esconde o totem na impressão */
+            
+            #ticket { 
+                display: block !important; 
+                width: 80mm; /* Largura padrão de bobina térmica */
+                margin: 0 auto;
+                text-align: center;
+                padding: 10px;
+                border: 1px solid #eee;
+                color: black;
+            }
+
+            .header-print { font-size: 14pt; font-weight: bold; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
+            .senha-print { font-size: 70pt !important; font-weight: 900; margin: 20px 0; display: block; line-height: 1; }
+            .tipo-print { font-size: 18pt; font-weight: bold; text-transform: uppercase; background: #000; color: #fff; padding: 5px; display: inline-block; width: 100%; }
+            .footer-print { font-size: 10pt; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
+        }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <img src="https://fatecead.com.br/wp-content/uploads/2021/01/logo-cps.png" width="180">
-    <h2 style="color: #333; margin: 30px 0;">Retire sua Senha:</h2>
-    <button class="btn-n" onclick="gerar('N')">ATENDIMENTO NORMAL</button>
+    <img src="https://fatecead.com.br/wp-content/uploads/2021/01/logo-cps.png" alt="Logo CPS">
+    <h2>Selecione o Atendimento</h2>
+    
+    <button class="btn-n" onclick="gerar('N')">NORMAL</button>
     <button class="btn-p" onclick="gerar('P')">PRIORITÁRIO</button>
+    
+    <div id="status"></div>
 </div>
 
 <div id="ticket">
-    <h2>CENTRO PAULA SOUZA</h2>
-    <hr>
-    <h1 id="s-num" style="font-size: 4rem; margin: 10px 0;">---</h1>
-    <p id="s-tipo" style="font-size: 1.5rem; font-weight: bold;"></p>
-    <p id="s-data"></p>
-    <hr>
-    <p>Por favor, aguarde o painel.</p>
+    <div class="header-print">
+        CENTRO PAULA SOUZA<br>
+        SISTEMA DE ATENDIMENTO
+    </div>
+    
+    <div id="p-tipo" class="tipo-print">---</div>
+    
+    <span id="p-num" class="senha-print">---</span>
+    
+    <div id="p-data" style="font-size: 12pt;"></div>
+    
+    <div class="footer-print">
+        Por favor, aguarde ser chamado<br>através do painel eletrônico.
+    </div>
 </div>
 
 <script type="module">
@@ -51,17 +91,37 @@
     const db = getDatabase(app);
 
     window.gerar = (tipo) => {
+        const statusMsg = document.getElementById('status');
+        statusMsg.innerText = "⏳ Processando...";
+
         const refTotem = ref(db, 'contadores/totem_' + tipo);
+        
         runTransaction(refTotem, (current) => {
             return (current || 0) + 1;
         }).then((result) => {
-            const num = result.snapshot.val().toString().padStart(3, '0');
-            const senha = tipo + num;
-            
-            document.getElementById('s-num').innerText = senha;
-            document.getElementById('s-tipo').innerText = tipo === 'N' ? 'NORMAL' : 'PRIORITÁRIO';
-            document.getElementById('s-data').innerText = new Date().toLocaleString();
-            window.print();
+            if (result.committed) {
+                const num = result.snapshot.val().toString().padStart(3, '0');
+                const senhaGerada = tipo + num;
+
+                // INJETA OS DADOS NO TICKET DE IMPRESSÃO
+                document.getElementById('p-num').innerText = senhaGerada;
+                document.getElementById('p-tipo').innerText = tipo === 'N' ? 'NORMAL' : 'PRIORITÁRIO';
+                document.getElementById('p-data').innerText = new Date().toLocaleString('pt-BR');
+
+                statusMsg.innerText = "✅ Senha " + senhaGerada + " Gerada!";
+
+                // FORÇA O NAVEGADOR A RECONHECER O TEXTO NOVO ANTES DE IMPRIMIR
+                setTimeout(() => {
+                    window.print();
+                    statusMsg.innerText = "Retire seu ticket na impressora.";
+                    
+                    // Limpa mensagem após 3 segundos
+                    setTimeout(() => { statusMsg.innerText = ""; }, 3000);
+                }, 250); 
+            }
+        }).catch((err) => {
+            console.error(err);
+            statusMsg.innerText = "❌ Erro de conexão!";
         });
     };
 </script>
