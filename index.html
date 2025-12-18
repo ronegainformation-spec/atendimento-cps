@@ -2,71 +2,94 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Senhas CPS</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>Painel de Senhas - CPS</title>
     <style>
-        :root { --cps-red: #b30000; --gold: #f39c12; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: grid; grid-template-columns: 1fr 350px; height: 100vh; background: #eee; }
-        .tv-view { background: #222; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s; }
-        .is-p { background: var(--gold) !important; color: black !important; }
-        #display-senha { font-size: 16rem; font-weight: 900; color: var(--cps-red); background: white; padding: 20px 100px; border-radius: 30px; box-shadow: 0 15px 50px rgba(0,0,0,0.5); }
-        .admin-panel { background: white; padding: 30px; border-left: 6px solid var(--cps-red); box-shadow: -5px 0 15px rgba(0,0,0,0.1); }
-        button { width: 100%; padding: 20px; margin: 10px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
-        .btn-n { background: var(--cps-red); color: white; }
-        .btn-p { background: var(--gold); color: white; }
-        .btn-audio { background: #444; color: white; margin-bottom: 20px; }
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: grid; grid-template-columns: 1fr 350px; height: 100vh; background: #eee; overflow: hidden; }
+        .tv-side { background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .priority-active { background: var(--gold) !important; color: #000 !important; }
+        #display-box { font-size: 15rem; font-weight: 900; background: white; color: var(--red); padding: 30px 80px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); min-width: 500px; text-align: center; }
+        .priority-active #display-box { color: #000; border: 10px solid #000; }
+        .admin-side { background: white; padding: 25px; border-left: 6px solid var(--red); box-shadow: -10px 0 20px rgba(0,0,0,0.1); overflow-y: auto; }
+        button { width: 100%; padding: 18px; margin: 8px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .btn-n { background: var(--red); color: white; }
+        .btn-p { background: var(--gold); color: black; }
+        .btn-audio { background: #444; color: white; }
+        img { display: block; margin: 0 auto 20px; max-width: 180px; }
+        .hist-item { border-bottom: 1px solid #ddd; padding: 5px 0; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<div class="tv-view" id="tela">
-    <div style="font-size: 2.5rem; margin-bottom: 20px; letter-spacing: 5px;">SENHA ATUAL</div>
-    <div id="display-senha">---</div>
-    <div id="tipo-txt" style="margin-top: 20px; font-size: 1.5rem; opacity: 0.8;">Aguardando...</div>
+<div class="tv-side" id="tv">
+    <div style="font-size: 2rem; margin-bottom: 20px; letter-spacing: 10px;">PRÓXIMA SENHA</div>
+    <div id="display-box">---</div>
+    <div id="label-tipo" style="margin-top: 30px; font-size: 1.5rem; font-weight: bold;">AGUARDANDO...</div>
+    <button class="btn-audio" onclick="ativarSom()" style="width: auto; padding: 10px 20px; margin-top: 40px;">🔊 CLIQUE AQUI PARA ATIVAR O SOM DA TV</button>
 </div>
 
-<div class="admin-panel">
-    <img src="https://www.cps.sp.gov.br/wp-content/themes/centro-paula-souza/assets/images/logo-cps.png" width="150">
-    <button class="btn-audio" onclick="ativarSom()">🔊 ATIVAR SOM (TV)</button>
+<div class="admin-side">
+    <img src="https://fatecead.com.br/wp-content/uploads/2021/01/logo-cps.png" alt="Logo CPS">
     <hr>
-    <h3>CONTROLE</h3>
+    <p style="text-align:center; font-weight:bold;">CONTROLE DO ATENDENTE</p>
     <button class="btn-n" onclick="chamar('N')">CHAMAR NORMAL (N)</button>
     <button class="btn-p" onclick="chamar('P')">CHAMAR PRIORIDADE (P)</button>
     <button style="background:#3498db; color:white;" onclick="repetir()">REPETIR CHAMADA</button>
-    <button style="background:#ddd; font-size:0.8rem;" onclick="resetar()">RESETAR TUDO</button>
+    <hr>
+    <div id="historico" style="margin-top: 10px;"><strong>Últimas Chamadas:</strong><div id="lista-h"></div></div>
+    <button style="background:#ddd; font-size:0.7rem; color: #666; margin-top: 30px;" onclick="resetar()">LIMPAR CONTADORES</button>
 </div>
 
-<script>
-    const config = { databaseURL: https://console.firebase.google.com/project/sistemacps-743f3/database/sistemacps-743f3-default-rtdb/data/~2F?hl=pt-BR };
-    firebase.initializeApp(config);
-    const db = firebase.database();
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, set, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-    // OUVIR MUDANÇAS (Para a TV)
-    db.ref('chamada_ativa').on('value', snap => {
-        const dados = snap.val();
-        if(dados) {
-            document.getElementById('display-senha').innerText = dados.senha;
-            document.getElementById('tipo-txt').innerText = dados.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
-            document.getElementById('tela').className = 'tv-view ' + (dados.tipo === 'P' ? 'is-p' : '');
-            falar(dados.senha, dados.tipo);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    onValue(ref(db, 'chamada_ativa'), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            document.getElementById('display-box').innerText = data.senha;
+            document.getElementById('label-tipo').innerText = data.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
+            document.getElementById('tv').className = 'tv-side ' + (data.tipo === 'P' ? 'priority-active' : '');
+            falar(data.senha, data.tipo);
         }
     });
 
-    function chamar(tipo) {
-        db.ref('contadores_chamada/' + tipo).transaction(c => (c || 0) + 1, (err, comm, snap) => {
-            const senha = tipo + snap.val().toString().padStart(3, '0');
-            db.ref('chamada_ativa').set({ senha: senha, tipo: tipo, t: Date.now() });
+    window.chamar = (tipo) => {
+        const contadorRef = ref(db, 'contadores/chamada_' + tipo);
+        runTransaction(contadorRef, (current) => {
+            return (current || 0) + 1;
+        }).then((result) => {
+            const num = result.snapshot.val().toString().padStart(3, '0');
+            const senha = tipo + num;
+            set(ref(db, 'chamada_ativa'), { senha, tipo, t: Date.now() });
         });
-    }
+    };
 
-    function repetir() { db.ref('chamada_ativa/t').set(Date.now()); }
-    function falar(s, t) {
+    window.repetir = () => {
+        set(ref(db, 'chamada_ativa/t'), Date.now());
+    };
+
+    window.falar = (s, t) => {
         const m = new SpeechSynthesisUtterance((t==='P'?'Prioridade, senha ':'Senha ') + s.split('').join(' '));
-        m.lang = 'pt-BR'; window.speechSynthesis.speak(m);
-    }
-    function ativarSom() { window.speechSynthesis.speak(new SpeechSynthesisUtterance("Som ativado")); }
-    function resetar() { if(confirm("Zerar?")) db.ref('/').remove(); }
+        m.lang = 'pt-BR';
+        window.speechSynthesis.speak(m);
+    };
+
+    window.ativarSom = () => { window.speechSynthesis.speak(new SpeechSynthesisUtterance("Som ativado")); alert("O áudio da TV foi ativado!"); };
+    window.resetar = () => { if(confirm("Deseja zerar todas as senhas do dia?")) set(ref(db, '/'), null); };
 </script>
 </body>
 </html>
