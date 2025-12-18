@@ -15,7 +15,7 @@
         button { width: 100%; padding: 18px; margin: 8px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
         .btn-n { background: var(--red); color: white; }
         .btn-p { background: var(--gold); color: black; }
-        .btn-print { background: #27ae60; color: white; } /* Verde para impressão */
+        .btn-print { background: #27ae60; color: white; }
         
         .stats { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; text-align: center; border: 1px solid #ddd; }
         .wait-num { font-size: 1.2rem; font-weight: bold; color: var(--red); }
@@ -24,15 +24,6 @@
         .history-title { font-size: 0.9rem; font-weight: bold; color: #666; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; }
         #history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; font-size: 0.85rem; }
         .history-item { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #eee; }
-        .hist-senha { font-weight: bold; color: var(--red); }
-
-        /* ESTILOS EXCLUSIVOS PARA IMPRESSÃO */
-        @media print {
-            body * { visibility: hidden; }
-            #relatorio-print, #relatorio-print * { visibility: visible; }
-            #relatorio-print { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; color: black !important; background: white !important; }
-            .no-print { display: none; }
-        }
     </style>
 </head>
 <body>
@@ -41,10 +32,10 @@
     <div style="font-size: 2rem; margin-bottom: 20px; letter-spacing: 10px;">PRÓXIMA SENHA</div>
     <div id="display-box">---</div>
     <div id="label-tipo" style="margin-top: 30px; font-size: 1.5rem; font-weight: bold;">AGUARDANDO...</div>
-    <button style="width:auto; background:#444; color:white;" onclick="ativarSom()" class="no-print">🔊 ATIVAR SOM</button>
+    <button style="width:auto; background:#444; color:white;" onclick="ativarSom()">🔊 ATIVAR SOM</button>
 </div>
 
-<div class="admin-side no-print">
+<div class="admin-side">
     <img src="logo-cps.png" alt="Logo CPS" style="display:block; margin: 0 auto 10px; max-width: 160px;">
     
     <div class="stats">
@@ -66,24 +57,13 @@
     <button style="background:#ddd; font-size:0.7rem; color: #666; margin-top: 20px;" onclick="resetar()">LIMPAR SISTEMA</button>
 </div>
 
-<div id="relatorio-print" style="display:none;">
-    <h2 style="text-align:center;">Centro Paula Souza - Relatório de Atendimentos</h2>
-    <p style="text-align:center;" id="relatorio-data"></p>
-    <table style="width:100%; border-collapse: collapse; margin-top:20px;">
-        <thead>
-            <tr style="border-bottom: 2px solid black; text-align: left;">
-                <th style="padding: 10px;">Senha</th>
-                <th style="padding: 10px;">Horário</th>
-            </tr>
-        </thead>
-        <tbody id="relatorio-corpo">
-            </tbody>
-    </table>
-</div>
+<table id="tabela-fonte" style="display:none;">
+    <tbody id="relatorio-corpo"></tbody>
+</table>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, runTransaction, get, child, push, query } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, runTransaction, get, child, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
@@ -99,7 +79,6 @@
     const db = getDatabase(app);
     let ultimoIdChamada = "";
 
-    // OUVIR CONTADORES E HISTÓRICO
     onValue(ref(db, 'contadores'), (s) => {
         const c = s.val() || {};
         document.getElementById('wait-n').innerText = Math.max(0, (c.totem_N || 0) - (c.chamada_N || 0));
@@ -115,18 +94,15 @@
         const data = snapshot.val();
         if (data) {
             const itens = Object.values(data);
-            // Histórico na tela (últimos 10)
             itens.slice(-10).reverse().forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'history-item';
-                li.innerHTML = `<span class="hist-senha">${item.senha}</span><span class="hist-hora">${item.hora}</span>`;
+                li.innerHTML = `<strong>${item.senha}</strong><span>${item.hora}</span>`;
                 list.appendChild(li);
             });
-            // Preparar tabela de impressão (todos)
-            itens.forEach(item => {
+            itens.forEach((item, index) => {
                 const tr = document.createElement('tr');
-                tr.style.borderBottom = "1px solid #ddd";
-                tr.innerHTML = `<td style="padding:10px;">${item.senha}</td><td style="padding:10px;">${item.hora}</td>`;
+                tr.innerHTML = `<td style="border:1px solid #000;padding:8px">${index+1}</td><td style="border:1px solid #000;padding:8px">${item.senha}</td><td style="border:1px solid #000;padding:8px">${item.hora}</td>`;
                 corpoRelatorio.appendChild(tr);
             });
         }
@@ -157,10 +133,28 @@
     };
 
     window.imprimirRelatorio = () => {
-        document.getElementById('relatorio-data').innerText = "Data: " + new Date().toLocaleDateString('pt-BR');
-        document.getElementById('relatorio-print').style.display = 'block';
-        window.print();
-        document.getElementById('relatorio-print').style.display = 'none';
+        const corpo = document.getElementById('relatorio-corpo').innerHTML;
+        const dataRel = new Date().toLocaleString('pt-BR');
+        const win = window.open('', '', 'height=700,width=900');
+        
+        win.document.write('<html><head><title>Relatório CPS</title>');
+        win.document.write('<style>body{font-family:sans-serif;padding:20px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #000;padding:8px;text-align:left} th{background:#eee} .assinatura{margin-top:50px;border-top:1px solid #000;width:300px;text-align:center;padding-top:5px}</style>');
+        win.document.write('</head><body>');
+        win.document.write('<h2>Centro Paula Souza - Relatório de Atendimentos</h2>');
+        win.document.write('<p>Gerado em: ' + dataRel + '</p>');
+        win.document.write('<table><thead><tr><th>Seq.</th><th>Senha</th><th>Horário</th></tr></thead><tbody>');
+        win.document.write(corpo);
+        win.document.write('</tbody></table>');
+        win.document.write('<div class="assinatura">Assinatura do Responsável</div>');
+        win.document.write('</body></html>');
+        
+        win.document.close();
+        
+        // Timeout para garantir que o celular renderize o conteúdo antes de abrir o PDF/Impressão
+        setTimeout(() => {
+            win.print();
+            // win.close(); // Opcional: fecha a aba após imprimir
+        }, 500);
     };
 
     window.repetir = () => { get(ref(db, 'chamada_ativa')).then(s => { if(s.exists()) set(ref(db, 'chamada_ativa/id'), Date.now().toString()); }); };
