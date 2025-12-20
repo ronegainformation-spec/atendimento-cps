@@ -5,65 +5,90 @@
     <title>Painel e Atendimento - CPS</title>
     <style>
         :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: grid; grid-template-columns: 1fr 350px; height: 100vh; background: #eee; overflow: hidden; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: grid; grid-template-columns: 1fr 320px; height: 100vh; background: #eee; overflow: hidden; }
         
+        /* LADO DA TV */
         .tv-side { background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
         .priority-active { background: var(--gold) !important; color: #000 !important; }
-        #display-box { font-size: 15rem; font-weight: 900; background: white; color: var(--red); padding: 30px 80px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); min-width: 500px; }
         
-        .admin-side { background: white; padding: 25px; border-left: 6px solid var(--red); box-shadow: -10px 0 20px rgba(0,0,0,0.1); overflow-y: auto; display: flex; flex-direction: column; }
-        button { width: 100%; padding: 18px; margin: 8px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        /* MOLDURA BRANCA PARA O LOGO */
+        .logo-container {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 25px;
+            display: inline-block;
+        }
+        .tv-logo { max-width: 220px; display: block; }
+
+        #display-box { font-size: 13rem; font-weight: 900; background: white; color: var(--red); padding: 15px 50px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); min-width: 400px; }
+        
+        /* BARRA LATERAL ADMINISTRATIVA */
+        .admin-side { background: white; padding: 12px; border-left: 6px solid var(--red); display: flex; flex-direction: column; gap: 6px; height: 100vh; box-sizing: border-box; }
+        .user-info { font-size: 0.65rem; color: #777; background: #f0f0f0; padding: 4px; border-radius: 4px; text-align: center; border: 1px solid #ddd; margin-bottom: 2px; }
+        .stats { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
+        .stat-box { flex: 1; background: #f9f9f9; padding: 5px; border-radius: 6px; text-align: center; border: 1px solid #ddd; font-size: 0.75rem; }
+        .wait-num { display: block; font-size: 1rem; font-weight: bold; color: var(--red); }
+
+        button { width: 100%; padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
         .btn-n { background: var(--red); color: white; }
         .btn-p { background: var(--gold); color: black; }
+        .btn-rep { background: #3498db; color: white; }
         .btn-print { background: #27ae60; color: white; }
-        
-        .stats { background: #f9f9f9; padding: 10px; border-radius: 8px; margin-top: 15px; font-size: 0.9rem; text-align: center; border: 1px solid #ddd; }
-        .wait-num { font-size: 1.2rem; font-weight: bold; color: var(--red); }
+        .btn-admin { background: #2980b9; color: white; }
+        .btn-exit { background: #e74c3c; color: white; }
+        .btn-reset { background: #ddd; font-size: 0.65rem; color: #666; margin-top: auto; padding: 4px; }
 
-        .history-container { margin-top: 20px; flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; }
-        .history-title { font-size: 0.9rem; font-weight: bold; color: #666; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; }
-        #history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; font-size: 0.85rem; }
-        .history-item { display: flex; justify-content: space-between; padding: 8px 5px; border-bottom: 1px solid #eee; }
+        .history-container { margin-top: 5px; flex-grow: 1; border-top: 1px solid #ddd; overflow-y: auto; background: #fafafa; }
+        .history-title { font-size: 0.7rem; font-weight: bold; padding: 5px; text-align: center; position: sticky; top: 0; background: #fafafa; }
+        #history-list { list-style: none; padding: 0 8px; margin: 0; }
+        .history-item { border-bottom: 1px solid #eee; padding: 4px 0; font-size: 0.75rem; }
+        .h-main { display: flex; justify-content: space-between; }
+        .h-main strong { color: var(--red); font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="tv-side" id="tv">
-    <div style="font-size: 2rem; margin-bottom: 20px; letter-spacing: 10px;">PRÓXIMA SENHA</div>
+    <div class="logo-container">
+        <img src="logo-cps.png" alt="Logo CPS" class="tv-logo">
+    </div>
+    
+    <div style="font-size: 1.5rem; margin-bottom: 10px; letter-spacing: 5px;">PRÓXIMA SENHA</div>
     <div id="display-box">---</div>
-    <div id="label-tipo" style="margin-top: 30px; font-size: 1.5rem; font-weight: bold;">AGUARDANDO...</div>
-    <button style="width:auto; background:#444; color:white;" onclick="ativarSom()">🔊 ATIVAR SOM</button>
+    <div id="label-tipo" style="margin-top: 15px; font-size: 1.1rem; font-weight: bold;">AGUARDANDO...</div>
+    <button style="width:auto; background:#444; color:white; margin-top:10px;" onclick="ativarSom()">🔊 ATIVAR SOM</button>
 </div>
 
 <div class="admin-side">
-    <img src="logo-cps.png" alt="Logo CPS" style="display:block; margin: 0 auto 10px; max-width: 160px;">
-    
+    <div id="user-display" class="user-info">Atendente: ...</div>
+
     <div class="stats">
-        <strong>Fila de Espera:</strong><br>
-        Normal: <span id="wait-n" class="wait-num">0</span> | Prioridade: <span id="wait-p" class="wait-num">0</span>
+        <div class="stat-box">Normal <span id="wait-n" class="wait-num">0</span></div>
+        <div class="stat-box">Prio <span id="wait-p" class="wait-num">0</span></div>
     </div>
 
     <button class="btn-n" onclick="chamarProximo('N')">CHAMAR NORMAL</button>
     <button class="btn-p" onclick="chamarProximo('P')">CHAMAR PRIORIDADE</button>
-    <button style="background:#3498db; color:white;" onclick="repetir()">REPETIR CHAMADA</button>
-    
-    <button class="btn-print" onclick="imprimirRelatorio()">🖨️ IMPRIMIR RELATÓRIO</button>
+    <button class="btn-rep" onclick="repetir()">🔁 REPETIR SENHA</button>
+    <button class="btn-print" onclick="imprimirRelatorio()">🖨️ RELATÓRIO</button>
+    <button class="btn-admin" onclick="window.location.href='admin_users.html'">👥 ACESSOS</button>
+    <button class="btn-exit" onclick="deslogar()">🚪 SAIR</button>
 
     <div class="history-container">
-        <div class="history-title">Últimos Atendimentos</div>
+        <div class="history-title">ÚLTIMOS CHAMADOS</div>
         <ul id="history-list"></ul>
     </div>
 
-    <button style="background:#ddd; font-size:0.7rem; color: #666; margin-top: 20px;" onclick="resetar()">LIMPAR SISTEMA</button>
+    <button class="btn-reset" onclick="resetar()">LIMPAR TUDO</button>
 </div>
 
-<table id="tabela-fonte" style="display:none;">
-    <tbody id="relatorio-corpo"></tbody>
-</table>
-
 <script type="module">
+    // Mantenha o seu script do Firebase aqui exatamente como estava no passo anterior
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, runTransaction, get, child, push } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, set, onValue, runTransaction, get, child, push, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
@@ -77,90 +102,103 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    let ultimoIdChamada = "";
+    const auth = getAuth(app);
+    let emailAtendente = "";
+    let ultimoIdSom = "";
 
-    onValue(ref(db, 'contadores'), (s) => {
-        const c = s.val() || {};
-        document.getElementById('wait-n').innerText = Math.max(0, (c.totem_N || 0) - (c.chamada_N || 0));
-        document.getElementById('wait-p').innerText = Math.max(0, (c.totem_P || 0) - (c.chamada_P || 0));
-    });
-
-    onValue(ref(db, 'historico'), (snapshot) => {
-        const list = document.getElementById('history-list');
-        const corpoRelatorio = document.getElementById('relatorio-corpo');
-        list.innerHTML = "";
-        corpoRelatorio.innerHTML = "";
-        
-        const data = snapshot.val();
-        if (data) {
-            const itens = Object.values(data);
-            itens.slice(-10).reverse().forEach(item => {
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                li.innerHTML = `<strong>${item.senha}</strong><span>${item.hora}</span>`;
-                list.appendChild(li);
-            });
-            itens.forEach((item, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="border:1px solid #000;padding:8px">${index+1}</td><td style="border:1px solid #000;padding:8px">${item.senha}</td><td style="border:1px solid #000;padding:8px">${item.hora}</td>`;
-                corpoRelatorio.appendChild(tr);
-            });
+    onAuthStateChanged(auth, (user) => {
+        if (!user) { window.location.href = "login.html"; } 
+        else { 
+            emailAtendente = user.email;
+            document.getElementById('user-display').innerText = emailAtendente;
+            inicializarSistema(); 
         }
     });
 
-    onValue(ref(db, 'chamada_ativa'), (snapshot) => {
-        const info = snapshot.val();
-        if (!info) return;
-        document.getElementById('display-box').innerText = info.senha;
-        document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
-        document.getElementById('tv').className = 'tv-side ' + (info.tipo === 'P' ? 'priority-active' : '');
-        if (info.id !== ultimoIdChamada) { falar(info.senha, info.tipo); ultimoIdChamada = info.id; }
-    });
+    function falar(senha, tipo) {
+        window.speechSynthesis.cancel();
+        const texto = (tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + senha.split('').join(' ');
+        const msg = new SpeechSynthesisUtterance(texto);
+        msg.lang = 'pt-BR';
+        msg.rate = 0.9;
+        window.speechSynthesis.speak(msg);
+    }
+
+    function inicializarSistema() {
+        onValue(ref(db, 'contadores'), (s) => {
+            const c = s.val() || {};
+            document.getElementById('wait-n').innerText = Math.max(0, (c.totem_N || 0) - (c.chamada_N || 0));
+            document.getElementById('wait-p').innerText = Math.max(0, (c.totem_P || 0) - (c.chamada_P || 0));
+        });
+
+        onValue(ref(db, 'historico'), (snapshot) => {
+            const list = document.getElementById('history-list');
+            list.innerHTML = "";
+            const data = snapshot.val();
+            if (data) {
+                Object.values(data).slice(-15).reverse().forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'history-item';
+                    li.innerHTML = `<div class="h-main"><strong>${item.senha}</strong><span>${item.hora}</span></div>`;
+                    list.appendChild(li);
+                });
+            }
+        });
+
+        onValue(ref(db, 'chamada_ativa'), (snapshot) => {
+            const info = snapshot.val();
+            if (!info) return;
+            document.getElementById('display-box').innerText = info.senha;
+            document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
+            document.getElementById('tv').className = 'tv-side ' + (info.tipo === 'P' ? 'priority-active' : '');
+            
+            if (info.id !== ultimoIdSom) {
+                falar(info.senha, info.tipo);
+                ultimoIdSom = info.id;
+            }
+        });
+    }
 
     window.chamarProximo = (tipo) => {
         get(child(ref(db), `contadores`)).then((snapshot) => {
             const counts = snapshot.val() || {};
             const proximoNum = (counts['chamada_' + tipo] || 0) + 1;
-            if (proximoNum > (counts['totem_' + tipo] || 0)) return alert("Ninguém aguardando!");
-
+            if (proximoNum > (counts['totem_' + tipo] || 0)) return alert("Sem senhas na fila!");
+            
             runTransaction(ref(db, 'contadores/chamada_' + tipo), (c) => (c || 0) + 1).then(() => {
                 const senha = tipo + proximoNum.toString().padStart(3, '0');
                 const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                set(ref(db, 'chamada_ativa'), { senha, tipo, id: Date.now().toString() });
-                push(ref(db, 'historico'), { senha, hora });
+                const id = Date.now().toString();
+                set(ref(db, 'chamada_ativa'), { senha, tipo, id });
+                push(ref(db, 'historico'), { senha, hora, atendente: emailAtendente });
             });
         });
     };
 
-    window.imprimirRelatorio = () => {
-        const corpo = document.getElementById('relatorio-corpo').innerHTML;
-        const dataRel = new Date().toLocaleString('pt-BR');
-        const win = window.open('', '', 'height=700,width=900');
-        
-        win.document.write('<html><head><title>Relatório CPS</title>');
-        win.document.write('<style>body{font-family:sans-serif;padding:20px} table{width:100%;border-collapse:collapse} th,td{border:1px solid #000;padding:8px;text-align:left} th{background:#eee} .assinatura{margin-top:50px;border-top:1px solid #000;width:300px;text-align:center;padding-top:5px}</style>');
-        win.document.write('</head><body>');
-        win.document.write('<h2>Centro Paula Souza - Relatório de Atendimentos</h2>');
-        win.document.write('<p>Gerado em: ' + dataRel + '</p>');
-        win.document.write('<table><thead><tr><th>Seq.</th><th>Senha</th><th>Horário</th></tr></thead><tbody>');
-        win.document.write(corpo);
-        win.document.write('</tbody></table>');
-        win.document.write('<div class="assinatura">Assinatura do Responsável</div>');
-        win.document.write('</body></html>');
-        
-        win.document.close();
-        
-        // Timeout para garantir que o celular renderize o conteúdo antes de abrir o PDF/Impressão
-        setTimeout(() => {
-            win.print();
-            // win.close(); // Opcional: fecha a aba após imprimir
-        }, 500);
+    window.repetir = () => {
+        get(ref(db, 'chamada_ativa')).then(s => {
+            if(s.exists()){
+                update(ref(db, 'chamada_ativa'), { id: Date.now().toString() });
+            }
+        });
     };
 
-    window.repetir = () => { get(ref(db, 'chamada_ativa')).then(s => { if(s.exists()) set(ref(db, 'chamada_ativa/id'), Date.now().toString()); }); };
-    window.falar = (s, t) => { window.speechSynthesis.cancel(); const m = new SpeechSynthesisUtterance((t === 'P' ? 'Prioridade. ' : 'Senha ') + s.split('').join(' ')); m.lang = 'pt-BR'; window.speechSynthesis.speak(m); };
-    window.ativarSom = () => { window.speechSynthesis.speak(new SpeechSynthesisUtterance("Som ativo")); };
-    window.resetar = () => { if(confirm("Limpar tudo?")) { set(ref(db, '/'), null); location.reload(); } };
+    window.ativarSom = () => { falar("Som ativo", ""); };
+    window.deslogar = () => { if(confirm("Sair?")) signOut(auth); };
+    window.resetar = () => { if(confirm("CUIDADO: Isso limpa todas as senhas! Continuar?")) set(ref(db, '/'), null); };
+    
+    window.imprimirRelatorio = () => {
+        get(ref(db, 'historico')).then((s) => {
+            const d = s.val(); let l = "";
+            if (d) Object.values(d).forEach((i, idx) => {
+                l += `<tr><td>${idx+1}</td><td>${i.senha}</td><td>${i.hora}</td><td>${i.atendente || '-'}</td></tr>`;
+            });
+            const w = window.open('', '', 'width=800,height=600');
+            w.document.write(`<html><head><style>table{width:100%;border-collapse:collapse} td,th{border:1px solid #000;padding:8px}</style></head>
+            <body><h2>Relatório de Atendimento</h2><table><thead><tr><th>Seq</th><th>Senha</th><th>Hora</th><th>Atendente</th></tr></thead><tbody>${l}</tbody></table></body></html>`);
+            w.document.close(); w.print();
+        });
+    };
 </script>
 </body>
 </html>

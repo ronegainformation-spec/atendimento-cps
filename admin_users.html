@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerenciar Usuários - CPS</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #eee; }
+        .container { max-width: 500px; background: white; padding: 30px; border-radius: 10px; margin: auto; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cadastrar Novo Usuário</h2>
+        <p>Este usuário poderá acessar o painel de senhas.</p>
+        <input type="email" id="newEmail" placeholder="E-mail do novo usuário">
+        <input type="password" id="newPass" placeholder="Senha (mínimo 6 caracteres)">
+        <button onclick="cadastrar()">CADASTRAR USUÁRIO</button>
+        <p id="msg"></p>
+        <hr>
+        <button style="background: #444;" onclick="window.location.href='index.html'">VOLTAR AO PAINEL</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+            authDomain: "sistemacps-743f3.firebaseapp.com",
+            projectId: "sistemacps-743f3",
+            appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.cadastrar = () => {
+            const email = document.getElementById('newEmail').value;
+            const senha = document.getElementById('newPass').value;
+
+            createUserWithEmailAndPassword(auth, email, senha)
+                .then(() => {
+                    alert("Usuário cadastrado com sucesso!");
+                    document.getElementById('newEmail').value = "";
+                    document.getElementById('newPass').value = "";
+                })
+                .catch(error => alert("Erro ao cadastrar: " + error.message));
+        };
+    </script>
+</body>
+</html>

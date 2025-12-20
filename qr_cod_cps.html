@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Totem - ETEC JD ÂNGELA</title>
+    <style>
+        :root {
+            --red: #b30000;
+            --black: #1a1a1a;
+            --white: #ffffff;
+            --gray: #444;
+        }
+
+        /* Reset para garantir o encaixe na página */
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .page {
+            width: 210mm;
+            height: 296mm; /* Reduzido 1mm para evitar quebra de página */
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            border-top: 15px solid var(--red);
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px 10px 20px; /* Reduzi o padding superior */
+        }
+
+        .unidade-label {
+            color: var(--red);
+            font-size: 14pt;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .etec-name {
+            color: var(--black);
+            font-size: 26pt;
+            font-weight: 800;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .divisor {
+            width: 80px;
+            height: 4px;
+            background: var(--red);
+            margin: 15px auto;
+        }
+
+        .welcome-text {
+            color: var(--gray);
+            font-size: 28pt;
+            font-weight: 300;
+            margin: 10px 0;
+        }
+
+        .qr-section {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .qr-frame {
+            border: 4px solid var(--black);
+            padding: 20px;
+            border-radius: 25px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .qr-image {
+            width: 320px; /* Diminuído para ganhar espaço vertical */
+            height: auto;
+            display: block;
+        }
+
+        .instruction-box {
+            margin-top: 30px;
+            text-align: center;
+            background: var(--red);
+            color: white;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-size: 18pt;
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: var(--black);
+            color: var(--white);
+            text-align: center;
+            padding: 20px;
+            font-size: 11pt;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-small {
+            filter: brightness(0) invert(1);
+            height: 35px;
+        }
+
+        @media print {
+            body { background: none; }
+            .page { 
+                border-top: 15px solid var(--red) !important; 
+                height: 100vh;
+                -webkit-print-color-adjust: exact; 
+                print-color-adjust: exact;
+            }
+            .instruction-box { background: var(--red) !important; color: white !important; -webkit-print-color-adjust: exact; }
+            .footer { background: var(--black) !important; -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        <div class="header">
+            <span class="unidade-label">UNIDADE</span>
+            <h1 class="etec-name">ETEC JD ÂNGELA</h1>
+            <div class="divisor"></div>
+            <h2 class="welcome-text">Seja bem-vindo(a)!</h2>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-frame">
+                <img src="QR_CODE_CPS.PNG" alt="QR Code" class="qr-image">
+            </div>
+            
+            <div class="instruction-box">
+                RETIRE SUA SENHA AQUI
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 14pt; color: var(--gray);">
+                Aponte a câmera do celular para o código acima
+            </p>
+        </div>
+
+        <div class="footer">
+            <img src="logo-cps.png" class="logo-small" alt="CPS">
+            <span>GOVERNO DO ESTADO DE SÃO PAULO</span>
+        </div>
+    </div>
+
+</body>
+</html>
