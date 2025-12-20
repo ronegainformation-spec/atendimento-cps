@@ -4,111 +4,97 @@
     <meta charset="UTF-8">
     <title>Painel TV - CPS</title>
     <style>
-        :root { 
-            --red: #b30000; 
-            --gold: #f1c40f; 
-            --black: #000000;
-            --white: #ffffff;
-        }
-        
-        body, html { 
-            margin: 0; padding: 0; width: 100%; height: 100%; 
-            font-family: 'Arial Black', sans-serif;
-            background: var(--white);
-            overflow: hidden;
-            transition: background 0.4s ease;
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            color: white; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow: hidden; 
         }
 
-        .container {
+        /* Área Principal (Senha Atual) */
+        .main-display {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centraliza verticalmente */
-            gap: 20px; /* Espaço entre os elementos */
-            height: 100vh;
-            width: 100vw;
-        }
-
-        .priority-mode { background: var(--gold) !important; }
-
-        .logo-top { max-width: 250px; margin-bottom: 10px; }
-
-        /* Estilo do Balão Ajustado */
-        .comic-bubble {
-            background: white;
-            border: 8px solid var(--black); /* Borda um pouco mais fina */
-            border-radius: 40px;
-            padding: 30px 60px;
-            position: relative;
-            box-shadow: 12px 12px 0px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
             justify-content: center;
-            min-width: 40%; /* Largura reduzida */
+            text-align: center;
+            transition: background 0.5s;
         }
-
-        /* Pontinha do balão reduzida */
-        .comic-bubble:after {
-            content: '';
-            position: absolute;
-            bottom: -30px;
-            left: 50px;
-            border-width: 30px 30px 0 0;
-            border-style: solid;
-            border-color: var(--black) transparent;
-            display: block;
-            width: 0;
-        }
+        .priority-active { background: var(--gold) !important; color: #000 !important; }
+        
+        .logo-container { background: white; padding: 10px 25px; border-radius: 12px; margin-bottom: 20px; }
+        .tv-logo { max-width: 180px; }
 
         #display-box { 
-            font-size: 15vw; /* Tamanho da senha reduzido para não estourar */
+            font-size: 14rem; 
             font-weight: 900; 
-            color: var(--red);
+            background: white; 
+            color: var(--red); 
+            padding: 10px 60px; 
+            border-radius: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            margin: 10px;
+        }
+
+        /* Rodapé com as últimas 5 senhas */
+        .history-footer {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-top: 2px solid rgba(255,255,255,0.1);
+        }
+        .history-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; letter-spacing: 3px; color: #888; }
+        
+        .history-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+        .history-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 15px;
             text-align: center;
-            line-height: 1;
-            margin: 0;
+            min-width: 120px;
+            border-bottom: 4px solid var(--red);
         }
+        .history-card strong { font-size: 2.5rem; display: block; color: white; }
+        .history-card span { font-size: 0.9rem; color: #aaa; }
 
-        .priority-mode #display-box { color: var(--black); }
+        /* Estilo especial para o primeiro da lista (o mais recente antes do atual) */
+        .history-card:first-child { border-bottom-color: var(--gold); background: rgba(255,255,255,0.2); }
 
-        .info-header {
-            font-size: 3rem;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: 8px;
-        }
-
-        #label-tipo { 
-            font-size: 3.5rem; 
-            font-weight: 900; 
-            color: var(--black);
-            text-transform: uppercase;
-            margin-top: 10px;
-        }
-
-        #btn-som {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--black); color: white; border: none;
-            padding: 12px 25px; cursor: pointer; border-radius: 8px;
-            font-size: 0.9rem;
-        }
+        button#btn-som { position: absolute; bottom: 10px; right: 10px; opacity: 0.3; background: #444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+        button#btn-som:hover { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <div class="container" id="bg-tv">
-        <img src="logo-cps.png" class="logo-top" alt="Logo CPS">
-
-        <div class="info-header">SENHA</div>
-        
-        <div class="comic-bubble">
-            <div id="display-box">---</div>
-        </div>
-        
-        <div id="label-tipo">AGUARDANDO...</div>
-
-        <button id="btn-som" onclick="ativarSom()">🔊 ATIVAR SOM</button>
+<div class="main-display" id="tv">
+    <div class="logo-container">
+        <img src="logo-cps.png" alt="Logo CPS" class="tv-logo">
     </div>
+    <div style="font-size: 1.8rem; letter-spacing: 8px;">PRÓXIMA SENHA</div>
+    <div id="display-box">---</div>
+    <div id="label-tipo" style="font-size: 1.5rem; font-weight: bold; margin-top: 10px;">AGUARDANDO...</div>
+</div>
+
+<div class="history-footer">
+    <div class="history-title">ÚLTIMOS CHAMADOS</div>
+    <div class="history-row" id="tv-history">
+        </div>
+</div>
+
+<button id="btn-som" onclick="ativarSom()">🔊 Ativar Som</button>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -126,36 +112,53 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    let ultimoIdSom = "";
 
-    let ultimoIdChamada = "";
+    window.falar = (texto) => {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(texto);
+        msg.lang = 'pt-BR';
+        msg.rate = 0.85;
+        window.speechSynthesis.speak(msg);
+    };
 
+    window.ativarSom = () => { window.falar("Som do painel ativado"); };
+
+    // Monitorar Chamada Ativa (Principal)
     onValue(ref(db, 'chamada_ativa'), (snapshot) => {
         const info = snapshot.val();
         if (!info) return;
 
         document.getElementById('display-box').innerText = info.senha;
-        document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'PRIORITÁRIA' : 'NORMAL';
-        document.getElementById('bg-tv').className = 'container ' + (info.tipo === 'P' ? 'priority-mode' : '');
-
-        if (info.id !== ultimoIdChamada) {
-            falar(info.senha, info.tipo);
-            ultimoIdChamada = info.id;
+        document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
+        document.getElementById('tv').className = 'main-display ' + (info.tipo === 'P' ? 'priority-active' : '');
+        
+        if (info.id !== ultimoIdSom) {
+            const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
+            window.falar(frase);
+            ultimoIdSom = info.id;
         }
     });
 
-    function falar(s, t) {
-        window.speechSynthesis.cancel();
-        const texto = (t === 'P' ? 'Prioridade. Senha ' : 'Senha ') + s.split('').join(' ');
-        const mensagem = new SpeechSynthesisUtterance(texto);
-        mensagem.lang = 'pt-BR';
-        mensagem.rate = 0.85;
-        window.speechSynthesis.speak(mensagem);
-    }
+    // Monitorar Histórico (As 5 últimas)
+    onValue(ref(db, 'historico'), (snapshot) => {
+        const historyRow = document.getElementById('tv-history');
+        historyRow.innerHTML = "";
+        const data = snapshot.val();
+        
+        if (data) {
+            // Pega todos os itens, inverte a ordem e pula o primeiro (que é a senha atual no display)
+            const itens = Object.values(data).reverse();
+            const ultimas = itens.slice(1, 6); // Pega do 2º ao 6º item
 
-    window.ativarSom = () => { 
-        window.speechSynthesis.speak(new SpeechSynthesisUtterance("Som ativo")); 
-        document.getElementById('btn-som').style.display = 'none';
-    };
+            ultimas.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'history-card';
+                card.innerHTML = `<span>${item.hora}</span><strong>${item.senha}</strong>`;
+                historyRow.appendChild(card);
+            });
+        }
+    });
 </script>
 </body>
 </html>
