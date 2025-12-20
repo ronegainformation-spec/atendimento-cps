@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <title>Painel TV - CPS</title>
     <style>
@@ -16,7 +17,6 @@
             overflow: hidden; 
         }
 
-        /* Área Principal (Senha Atual) */
         .main-display {
             flex: 1;
             display: flex;
@@ -40,9 +40,14 @@
             border-radius: 30px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
             margin: 10px;
+            animation: pulse 1.5s infinite alternate;
         }
 
-        /* Rodapé com as últimas 5 senhas */
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.02); }
+        }
+
         .history-footer {
             background: rgba(255,255,255,0.05);
             padding: 20px;
@@ -58,6 +63,7 @@
             gap: 20px;
             justify-content: center;
             width: 100%;
+            min-height: 100px;
         }
         .history-card {
             background: rgba(255,255,255,0.1);
@@ -66,15 +72,24 @@
             text-align: center;
             min-width: 120px;
             border-bottom: 4px solid var(--red);
+            animation: fadeIn 0.5s ease;
         }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .history-card strong { font-size: 2.5rem; display: block; color: white; }
         .history-card span { font-size: 0.9rem; color: #aaa; }
+        
+        .dev-credits {
+            font-size: 0.7rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 15px;
+            letter-spacing: 1px;
+        }
 
-        /* Estilo especial para o primeiro da lista (o mais recente antes do atual) */
-        .history-card:first-child { border-bottom-color: var(--gold); background: rgba(255,255,255,0.2); }
-
-        button#btn-som { position: absolute; bottom: 10px; right: 10px; opacity: 0.3; background: #444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        button#btn-som:hover { opacity: 1; }
+        /* Botões de controle atualizados */
+        .controls { position: absolute; bottom: 10px; right: 10px; display: flex; gap: 10px; }
+        .btn-ui { opacity: 0.1; background: #444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .btn-ui:hover { opacity: 1; background: var(--red); }
     </style>
 </head>
 <body>
@@ -90,11 +105,17 @@
 
 <div class="history-footer">
     <div class="history-title">ÚLTIMOS CHAMADOS</div>
-    <div class="history-row" id="tv-history">
-        </div>
+    <div class="history-row" id="tv-history"></div>
+    
+    <div class="dev-credits">
+        SISTEMA DESENVOLVIDO POR RONEGA INFORMATION SECURITY | (11) 95499-1772
+    </div>
 </div>
 
-<button id="btn-som" onclick="ativarSom()">🔊 Ativar Som</button>
+<div class="controls">
+    <button class="btn-ui" onclick="window.location.href='index.html'">🏠 MENU</button>
+    <button class="btn-ui" onclick="ativarSom()">🔊 SOM</button>
+</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
@@ -122,12 +143,18 @@
         window.speechSynthesis.speak(msg);
     };
 
-    window.ativarSom = () => { window.falar("Som do painel ativado"); };
+    window.ativarSom = () => { 
+        window.falar("Som do painel ativado"); 
+    };
 
-    // Monitorar Chamada Ativa (Principal)
     onValue(ref(db, 'chamada_ativa'), (snapshot) => {
         const info = snapshot.val();
-        if (!info) return;
+        if (!info) {
+            document.getElementById('display-box').innerText = "---";
+            document.getElementById('label-tipo').innerText = "AGUARDANDO...";
+            document.getElementById('tv').className = 'main-display';
+            return;
+        }
 
         document.getElementById('display-box').innerText = info.senha;
         document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
@@ -137,19 +164,23 @@
             const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
             window.falar(frase);
             ultimoIdSom = info.id;
+            
+            const box = document.getElementById('display-box');
+            box.style.animation = 'none';
+            setTimeout(() => box.style.animation = 'pulse 1.5s infinite alternate', 10);
         }
     });
 
-    // Monitorar Histórico (As 5 últimas)
     onValue(ref(db, 'historico'), (snapshot) => {
         const historyRow = document.getElementById('tv-history');
-        historyRow.innerHTML = "";
+        historyRow.innerHTML = ""; 
         const data = snapshot.val();
         
         if (data) {
-            // Pega todos os itens, inverte a ordem e pula o primeiro (que é a senha atual no display)
-            const itens = Object.values(data).reverse();
-            const ultimas = itens.slice(1, 6); // Pega do 2º ao 6º item
+            const itensValidos = Object.values(data).filter(item => item.senha);
+            const ordenados = itensValidos.reverse();
+            // Pega as últimas senhas chamadas (excluindo a atual que já está no telão principal)
+            const ultimas = ordenados.slice(1, 6);
 
             ultimas.forEach(item => {
                 const card = document.createElement('div');

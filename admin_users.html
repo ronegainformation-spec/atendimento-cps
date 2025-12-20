@@ -1,53 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <title>Gerenciar Usuários - CPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Atendentes - CPS</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 40px; background: #eee; }
-        .container { max-width: 500px; background: white; padding: 30px; border-radius: 10px; margin: auto; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; }
-        button { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #f4f4f4; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        header { background: var(--red); color: white; width: 100%; padding: 20px 0; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        .container { 
+            width: 90%; 
+            max-width: 500px; 
+            background: white; 
+            margin-top: 30px; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            border-top: 6px solid var(--gold); 
+            margin-bottom: 50px;
+        }
+
+        .logo-container { text-align: center; margin-bottom: 20px; }
+        .logo-container img { max-width: 120px; }
+        h2 { color: var(--red); margin-bottom: 20px; font-size: 1.4rem; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.9rem; margin-bottom: 5px; color: #555; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 1rem; }
+        .btn-add { background: var(--red); color: white; border: none; width: 100%; padding: 14px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+        
+        /* BOTÃO VOLTAR ATUALIZADO PARA INDEX.HTML */
+        .btn-back { background: #333; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 0.85rem; text-transform: uppercase; }
+        .btn-back:hover { background: #000; }
+
+        #msg { text-align: center; margin-top: 15px; font-size: 0.9rem; font-weight: bold; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+
+        footer {
+            margin-top: auto;
+            padding: 25px;
+            text-align: center;
+            background: white;
+            width: 100%;
+            border-top: 1px solid #ddd;
+            color: #444;
+            box-sizing: border-box;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Cadastrar Novo Usuário</h2>
-        <p>Este usuário poderá acessar o painel de senhas.</p>
-        <input type="email" id="newEmail" placeholder="E-mail do novo usuário">
-        <input type="password" id="newPass" placeholder="Senha (mínimo 6 caracteres)">
-        <button onclick="cadastrar()">CADASTRAR USUÁRIO</button>
-        <p id="msg"></p>
-        <hr>
-        <button style="background: #444;" onclick="window.location.href='index.html'">VOLTAR AO PAINEL</button>
+
+<header><div style="font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">CPS - CADASTRO DE ATENDENTES</div></header>
+
+<div class="container">
+    <div class="logo-container"><img src="logo-cps.png" alt="Logo CPS"></div>
+    <h2>Novo Atendente</h2>
+    <div class="form-group">
+        <label>E-mail Institucional</label>
+        <input type="email" id="email" placeholder="exemplo@cps.sp.gov.br">
     </div>
+    <div class="form-group">
+        <label>Senha de Acesso</label>
+        <input type="password" id="password" placeholder="Mínimo 6 caracteres">
+    </div>
+    <button class="btn-add" onclick="cadastrar()">CADASTRAR ATENDENTE</button>
+    <div id="msg"></div>
+    
+    <button class="btn-back" onclick="window.location.href='index.html'">🏠 VOLTAR AO PAINEL DE COMANDO</button>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+<footer>
+    <p style="margin: 0 0 10px 0;">Desenvolvido por: <strong>Ronega Information Security</strong></p>
+    <div class="footer-links">
+        <a href="https://wa.me/5511954991772" target="_blank" style="color: #25D366;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="18"> (11) 95499-1772
+        </a>
+        <a href="mailto:ronega.information@gmail.com" style="color: #b30000;">
+            📧 ronega.information@gmail.com
+        </a>
+    </div>
+</footer>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
-            authDomain: "sistemacps-743f3.firebaseapp.com",
-            projectId: "sistemacps-743f3",
-            appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
-        };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
 
-        window.cadastrar = () => {
-            const email = document.getElementById('newEmail').value;
-            const senha = document.getElementById('newPass').value;
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
 
-            createUserWithEmailAndPassword(auth, email, senha)
-                .then(() => {
-                    alert("Usuário cadastrado com sucesso!");
-                    document.getElementById('newEmail').value = "";
-                    document.getElementById('newPass').value = "";
-                })
-                .catch(error => alert("Erro ao cadastrar: " + error.message));
-        };
-    </script>
+    onAuthStateChanged(auth, (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+        } else {
+            const userEmail = user.email.toLowerCase();
+            get(ref(db, 'administradores')).then((snapshot) => {
+                const adms = snapshot.val();
+                const listaEmails = adms ? Object.values(adms).map(a => a.email.toLowerCase()) : [];
+                
+                if (!listaEmails.includes(userEmail)) {
+                    alert("Acesso restrito!");
+                    // LINK CORRIGIDO AQUI TAMBÉM
+                    window.location.href = "index.html";
+                }
+            });
+        }
+    });
+
+    window.cadastrar = async () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const msgDiv = document.getElementById('msg');
+        const btn = document.querySelector('.btn-add');
+
+        if(password.length < 6) {
+            msgDiv.className = "error";
+            msgDiv.innerText = "A senha deve ter pelo menos 6 caracteres.";
+            return;
+        }
+
+        btn.innerText = "PROCESSANDO...";
+        btn.disabled = true;
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            msgDiv.className = "success";
+            msgDiv.innerText = "✅ Atendente cadastrado com sucesso!";
+            document.getElementById('email').value = "";
+            document.getElementById('password').value = "";
+        } catch (error) {
+            msgDiv.className = "error";
+            msgDiv.innerText = "Erro: " + error.message;
+        } finally {
+            btn.innerText = "CADASTRAR ATENDENTE";
+            btn.disabled = false;
+        }
+    };
+</script>
 </body>
 </html>

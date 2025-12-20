@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="robots" content="noindex, nofollow">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Administradores - Ronega Security</title>
+    <style>
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #f4f4f4; --dark: #1a1a1a; }
+        
+        /* Blindagem Visual */
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; background: var(--bg); 
+            display: flex; flex-direction: column; 
+            align-items: center; min-height: 100vh; 
+            visibility: hidden; /* Escondido até validar */
+        }
+        
+        header { background: var(--dark); color: white; width: 100%; padding: 20px 0; text-align: center; border-bottom: 5px solid var(--red); }
+        
+        .container { 
+            width: 90%; 
+            max-width: 600px; 
+            background: white; 
+            margin: 30px 0; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        }
+
+        h2 { color: var(--red); text-align: center; margin-top: 0; }
+        
+        .form-group { margin-bottom: 15px; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; }
+        
+        .btn-add { background: var(--red); color: white; border: none; padding: 0 20px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn-add:hover { background: #8e0000; }
+
+        .adm-list { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; min-height: 50px; }
+        .adm-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 12px; 
+            background: #f9f9f9; 
+            border-radius: 6px; 
+            margin-bottom: 8px;
+            border-left: 4px solid var(--gold);
+        }
+        .btn-remove { background: #ff4d4d; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .btn-remove:hover { background: #cc0000; }
+
+        .btn-back { background: #333; color: white; border: none; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 20px; text-transform: uppercase; }
+        .btn-back:hover { background: #000; }
+
+        footer {
+            margin-top: auto;
+            padding: 25px;
+            text-align: center;
+            background: white;
+            width: 100%;
+            border-top: 1px solid #ddd;
+            color: #444;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">CPS - SEGURANÇA E ACESSO</div>
+</header>
+
+<div class="container">
+    <h2>Gestão de Administradores</h2>
+    <p style="font-size: 0.85rem; color: #666; text-align: center; margin-bottom: 20px;">
+        E-mails nesta lista possuem privilégios totais no sistema.
+    </p>
+
+    <div class="form-group">
+        <input type="email" id="adm-email" placeholder="Novo e-mail admin">
+        <button class="btn-add" onclick="adicionarAdm()">ADICIONAR</button>
+    </div>
+
+    <div class="adm-list" id="lista-corpo">
+        <p style="text-align: center; color: #999;">Verificando permissões...</p>
+    </div>
+
+    <button class="btn-back" onclick="window.location.href='index.html'">🏠 VOLTAR AO PAINEL</button>
+</div>
+
+<footer>
+    <p style="margin: 0 0 10px 0;">Desenvolvido por: <strong>Ronega Information Security</strong></p>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, get } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    // --- PROTEÇÃO DE ACESSO ---
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        // Verifica se o usuário logado é de fato um Administrador
+        const snapshot = await get(ref(db, 'administradores'));
+        const adms = snapshot.val();
+        const listaEmails = adms ? Object.values(adms).map(a => a.email.toLowerCase()) : [];
+
+        if (!listaEmails.includes(user.email.toLowerCase())) {
+            alert("ACESSO NEGADO: Você não tem permissão para gerenciar administradores.");
+            window.location.href = "index.html";
+        } else {
+            // Se for admin, libera a página e carrega a lista
+            document.body.style.visibility = "visible";
+            carregarListaAdms();
+        }
+    });
+
+    function carregarListaAdms() {
+        onValue(ref(db, 'administradores'), (snapshot) => {
+            const listaDiv = document.getElementById('lista-corpo');
+            listaDiv.innerHTML = "";
+            const data = snapshot.val();
+            
+            if (data) {
+                Object.entries(data).forEach(([key, val]) => {
+                    const item = document.createElement('div');
+                    item.className = 'adm-item';
+                    item.innerHTML = `
+                        <span>${val.email}</span>
+                        <button class="btn-remove" onclick="removerAdm('${key}', '${val.email}')">EXCLUIR</button>
+                    `;
+                    listaDiv.appendChild(item);
+                });
+            } else {
+                listaDiv.innerHTML = "<p style='text-align: center; color: #999;'>Nenhum administrador cadastrado.</p>";
+            }
+        });
+    }
+
+    window.adicionarAdm = () => {
+        const input = document.getElementById('adm-email');
+        const email = input.value.trim().toLowerCase();
+        
+        if (email && email.includes('@')) {
+            push(ref(db, 'administradores'), { email: email })
+                .then(() => { input.value = ""; })
+                .catch(err => alert("Erro ao salvar: " + err));
+        } else {
+            alert("Por favor, insira um e-mail válido.");
+        }
+    };
+
+    window.removerAdm = (key, emailRemover) => {
+        // Impede que o usuário se remova por acidente
+        if (emailRemover.toLowerCase() === auth.currentUser.email.toLowerCase()) {
+            alert("Segurança: Você não pode remover seu próprio acesso administrativo por aqui.");
+            return;
+        }
+
+        if (confirm("Deseja realmente remover " + emailRemover + " da lista de administradores?")) {
+            remove(ref(db, `administradores/${key}`))
+                .catch(err => alert("Erro ao remover: " + err));
+        }
+    };
+</script>
+</body>
+</html>

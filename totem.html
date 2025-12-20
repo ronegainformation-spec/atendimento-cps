@@ -1,75 +1,156 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Totem de Senhas - CPS</title>
     <style>
         :root { --red: #b30000; --gold: #f1c40f; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
         
-        /* Estilo do Totem na Tela */
-        .box { background: white; padding: 50px; border-radius: 40px; text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.15); width: 450px; border-top: 15px solid var(--red); }
-        .box img { max-width: 220px; margin-bottom: 20px; }
-        h2 { color: #333; margin-bottom: 30px; font-weight: 300; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #eef2f3; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh;
+            overflow: hidden; 
+        }
         
-        button { width: 100%; padding: 30px; margin: 15px 0; font-size: 1.8rem; font-weight: 900; border: none; border-radius: 20px; cursor: pointer; color: white; transition: all 0.2s; position: relative; overflow: hidden; }
-        .btn-n { background: var(--red); box-shadow: 0 10px 0 #800; }
-        .btn-p { background: var(--gold); color: black; box-shadow: 0 10px 0 #b7950b; }
-        button:active { transform: translateY(6px); box-shadow: 0 4px 0 #333; }
-        
-        #status { margin-top: 20px; font-weight: bold; color: #666; min-height: 1.2em; }
+        /* Link de Administração Atualizado para index.html */
+        .btn-admin {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.05);
+            color: #999;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 100;
+        }
+        .btn-admin:hover { background: rgba(0,0,0,0.1); color: #666; }
 
-        /* ESTILO DO TICKET (O que sai na impressora) */
+        /* Container Central Responsivo */
+        .box { 
+            background: white; 
+            padding: 5vh 5vw; 
+            border-radius: 30px; 
+            text-align: center; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
+            width: 85%; 
+            max-width: 400px; 
+            border-top: 10px solid var(--red);
+            box-sizing: border-box;
+        }
+
+        .box img { 
+            max-width: 150px; 
+            width: 40%;
+            margin-bottom: 2vh; 
+        }
+        
+        h2 { 
+            color: #333; 
+            margin: 0 0 3vh 0; 
+            font-weight: 400; 
+            font-size: 1.4rem; 
+        }
+        
+        button.gerar-btn { 
+            width: 100%; 
+            padding: 22px; 
+            margin: 10px 0; 
+            font-size: 1.4rem; 
+            font-weight: 800; 
+            border: none; 
+            border-radius: 15px; 
+            cursor: pointer; 
+            color: white; 
+            transition: 0.2s; 
+            box-sizing: border-box;
+        }
+
+        .btn-n { background: var(--red); box-shadow: 0 6px 0 #800; }
+        .btn-p { background: var(--gold); color: black; box-shadow: 0 6px 0 #b7950b; }
+        
+        button.gerar-btn:active { 
+            transform: translateY(4px); 
+            box-shadow: 0 2px 0 #333; 
+        }
+        
+        #status { 
+            margin-top: 20px; 
+            font-weight: bold; 
+            color: var(--red); 
+            font-size: 1rem;
+            height: 1.2em;
+        }
+
+        .totem-footer {
+            margin-top: 20px;
+            font-size: 0.65rem;
+            color: #aaa;
+            text-align: center;
+        }
+
+        /* TICKET DE IMPRESSÃO */
         #ticket { display: none; }
-
         @media print {
-            body { background: white; }
-            .box { display: none !important; } /* Esconde o totem na impressão */
-            
+            .box, .btn-admin, .totem-footer { display: none !important; } 
             #ticket { 
                 display: block !important; 
-                width: 80mm; /* Largura padrão de bobina térmica */
-                margin: 0 auto;
+                width: 72mm; 
                 text-align: center;
-                padding: 10px;
-                border: 1px solid #eee;
-                color: black;
+                font-family: monospace;
             }
+            .senha-print { font-size: 60pt; font-weight: 900; }
+        }
 
-            .header-print { font-size: 14pt; font-weight: bold; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px; }
-            .senha-print { font-size: 70pt !important; font-weight: 900; margin: 20px 0; display: block; line-height: 1; }
-            .tipo-print { font-size: 18pt; font-weight: bold; text-transform: uppercase; background: #000; color: #fff; padding: 5px; display: inline-block; width: 100%; }
-            .footer-print { font-size: 10pt; margin-top: 20px; border-top: 1px dashed #000; padding-top: 10px; }
+        @media (max-height: 600px) {
+            .box { padding: 20px; }
+            h2 { font-size: 1.1rem; margin-bottom: 10px; }
+            button.gerar-btn { padding: 15px; font-size: 1.1rem; }
+            .box img { max-width: 100px; }
         }
     </style>
 </head>
 <body>
 
- <div class="box">
-     <img src="logo-cps.png" alt="Logo CPS" width="180">
-	   <h2 style="color: #333; margin: 30px 0;">Retire sua Senha:</h2>
-         <button class="btn-n" onclick="gerar('N')">NORMAL</button>
-           <button class="btn-p" onclick="gerar('P')">PRIORITÁRIO</button>
-	 
+<a href="index.html" class="btn-admin">ADM SISTEMA</a>
+
+<div class="box">
+    <img src="logo-cps.png" alt="Logo CPS">
+    <h2>Toque para retirar sua senha:</h2>
+    
+    <button class="gerar-btn btn-n" onclick="gerar('N')">NORMAL</button>
+    <button class="gerar-btn btn-p" onclick="gerar('P')">PRIORITÁRIO</button>
+    
     <div id="status"></div>
 </div>
 
+<div class="totem-footer">
+    DESENVOLVIDO POR RONEGA INFORMATION SECURITY
+</div>
+
 <div id="ticket">
-    <div class="header-print">
-        CENTRO PAULA SOUZA<br>
-        SISTEMA DE ATENDIMENTO<br>
-		ETEC JD ANGELA
+    <div style="font-size: 12pt; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 5mm; margin-bottom: 5mm;">
+        CENTRO PAULA SOUZA<br>SISTEMA DE ATENDIMENTO
     </div>
-    
-    <div id="p-tipo" class="tipo-print">---</div>
-    
-    <span id="p-num" class="senha-print">---</span>
-    
-    <div id="p-data" style="font-size: 12pt;"></div>
-    
-    <div class="footer-print">
-        Por favor, aguarde ser chamado<br>através do painel eletrônico.
+    <div id="p-tipo" style="font-size: 14pt; font-weight: bold; border: 2px solid #000; padding: 2mm;">---</div>
+    <span id="p-num" class="senha-print">---</span><br>
+    <div id="p-data" style="font-size: 10pt; font-weight: bold;"></div>
+    <div style="font-size: 8pt; margin-top: 5mm; border-top: 1px dashed #000; padding-top: 3mm;">
+        Aguarde sua vez no painel.
+    </div>
+    <div style="font-size: 7pt; margin-top: 3mm; font-weight: bold;">
+        Sistema por Ronega Information Security
     </div>
 </div>
 
@@ -92,36 +173,31 @@
 
     window.gerar = (tipo) => {
         const statusMsg = document.getElementById('status');
-        statusMsg.innerText = "⏳ Processando...";
+        statusMsg.innerText = "⏳ Gerando...";
 
-        const refTotem = ref(db, 'contadores/totem_' + tipo);
-        
-        runTransaction(refTotem, (current) => {
+        runTransaction(ref(db, 'contadores/totem_' + tipo), (current) => {
             return (current || 0) + 1;
         }).then((result) => {
             if (result.committed) {
                 const num = result.snapshot.val().toString().padStart(3, '0');
                 const senhaGerada = tipo + num;
 
-                // INJETA OS DADOS NO TICKET DE IMPRESSÃO
                 document.getElementById('p-num').innerText = senhaGerada;
                 document.getElementById('p-tipo').innerText = tipo === 'N' ? 'NORMAL' : 'PRIORITÁRIO';
                 document.getElementById('p-data').innerText = new Date().toLocaleString('pt-BR');
 
-                statusMsg.innerText = "✅ Senha " + senhaGerada + " Gerada!";
+                statusMsg.innerText = "✅ SENHA: " + senhaGerada;
 
-                // FORÇA O NAVEGADOR A RECONHECER O TEXTO NOVO ANTES DE IMPRIMIR
+                // Pequeno delay para o DOM atualizar antes de abrir a janela de impressão
                 setTimeout(() => {
                     window.print();
-                    statusMsg.innerText = "Retire seu ticket na impressora.";
-                    
-                    // Limpa mensagem após 3 segundos
-                    setTimeout(() => { statusMsg.innerText = ""; }, 3000);
-                }, 250); 
+                    statusMsg.innerText = "Retire seu ticket no totem.";
+                    setTimeout(() => { statusMsg.innerText = ""; }, 4000);
+                }, 400); 
             }
         }).catch((err) => {
             console.error(err);
-            statusMsg.innerText = "❌ Erro de conexão!";
+            statusMsg.innerText = "❌ Erro ao conectar.";
         });
     };
 </script>

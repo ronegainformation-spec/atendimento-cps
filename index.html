@@ -1,79 +1,221 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <title>Painel e Atendimento - CPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Comando - CPS</title>
     <style>
-        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; display: grid; grid-template-columns: 1fr 320px; height: 100vh; background: #eee; overflow: hidden; }
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #f4f4f4; --dark: #1a1a1a; --orange: #e67e22; --green: #27ae60; --blue: #2980b9; }
         
-        /* LADO DA TV */
-        .tv-side { background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .priority-active { background: var(--gold) !important; color: #000 !important; }
-        
-        .logo-container { background: white; padding: 15px 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-bottom: 25px; display: inline-block; }
-        .tv-logo { max-width: 220px; display: block; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+            visibility: hidden; /* Esconde a página até validar o login */
+        }
 
-        #display-box { font-size: 13rem; font-weight: 900; background: white; color: var(--red); padding: 15px 50px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); min-width: 400px; }
-        
-        /* BARRA LATERAL */
-        .admin-side { background: white; padding: 12px; border-left: 6px solid var(--red); display: flex; flex-direction: column; gap: 6px; height: 100vh; box-sizing: border-box; }
-        .user-info { font-size: 0.65rem; color: #777; background: #f0f0f0; padding: 4px; border-radius: 4px; text-align: center; border: 1px solid #ddd; margin-bottom: 2px; }
-        .stats { display: flex; gap: 4px; justify-content: center; margin-bottom: 2px; }
-        .stat-box { flex: 1; background: #f9f9f9; padding: 5px; border-radius: 6px; text-align: center; border: 1px solid #ddd; font-size: 0.75rem; }
-        .wait-num { display: block; font-size: 1rem; font-weight: bold; color: var(--red); }
+        #user-bar {
+            width: 100%;
+            background: var(--dark);
+            color: white;
+            padding: 8px 20px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
 
-        button { width: 100%; padding: 8px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s; }
-        .btn-n { background: var(--red); color: white; }
-        .btn-p { background: var(--gold); color: black; }
-        .btn-rep { background: #3498db; color: white; }
-        .btn-print { background: #27ae60; color: white; }
-        .btn-admin { background: #2980b9; color: white; }
-        .btn-exit { background: #e74c3c; color: white; }
-        .btn-reset { background: #ddd; font-size: 0.65rem; color: #666; margin-top: auto; padding: 4px; }
+        .btn-logout {
+            background: #444;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.7rem;
+            transition: 0.3s;
+        }
 
-        .history-container { margin-top: 5px; flex-grow: 1; border-top: 1px solid #ddd; overflow-y: auto; background: #fafafa; }
-        .history-title { font-size: 0.7rem; font-weight: bold; padding: 5px; text-align: center; position: sticky; top: 0; background: #fafafa; }
-        #history-list { list-style: none; padding: 0 8px; margin: 0; }
-        .history-item { border-bottom: 1px solid #eee; padding: 4px 0; font-size: 0.75rem; }
-        .h-main { display: flex; justify-content: space-between; }
-        .h-main strong { color: var(--red); font-size: 0.9rem; }
+        .btn-logout:hover { background: var(--red); }
+
+        .header { 
+            background: white; 
+            width: 100%; 
+            padding: 20px 0; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-bottom: 5px solid var(--red);
+        }
+
+        .logo-painel { max-width: 180px; margin-bottom: 10px; }
+
+        .container { 
+            max-width: 1100px; 
+            width: 95%; 
+            margin-top: 30px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 15px; 
+            padding-bottom: 50px; 
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 240px;
+        }
+
+        .card:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-color: var(--red); }
+        .card h3 { margin: 10px 0; color: var(--dark); font-size: 1.1rem; }
+        .card p { color: #666; font-size: 0.8rem; margin: 0; flex-grow: 1; }
+
+        .btn-acesso {
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            cursor: pointer;
+            width: 100%;
+            color: white;
+            transition: 0.2s;
+        }
+
+        .btn-public { background: var(--dark); }
+        .btn-adm { background: var(--red); }
+        .btn-mobile { background: var(--green); }
+        .btn-print { background: var(--orange); }
+        .btn-config { background: var(--blue); }
+
+        .badge-lock {
+            font-size: 0.6rem;
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            color: #888;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            background: white;
+            width: 100%;
+            border-top: 1px solid #ddd;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
 
-<div class="tv-side" id="tv">
-    <div class="logo-container">
-        <img src="logo-cps.png" alt="Logo CPS" class="tv-logo">
-    </div>
-    <div style="font-size: 1.5rem; margin-bottom: 10px; letter-spacing: 5px;">PRÓXIMA SENHA</div>
-    <div id="display-box">---</div>
-    <div id="label-tipo" style="margin-top: 15px; font-size: 1.1rem; font-weight: bold;">AGUARDANDO...</div>
-    <button style="width:auto; background:#444; color:white; margin-top:10px;" onclick="ativarSom()">🔊 ATIVAR SOM</button>
+<div id="user-bar">
+    <span>Conectado como: <strong id="user-email">...</strong></span>
+    <button class="btn-logout" id="logout-trigger">SAIR DO SISTEMA</button>
 </div>
 
-<div class="admin-side">
-    <div id="user-display" class="user-info">Atendente: ...</div>
-    <div class="stats">
-        <div class="stat-box">Normal <span id="wait-n" class="wait-num">0</span></div>
-        <div class="stat-box">Prio <span id="wait-p" class="wait-num">0</span></div>
-    </div>
-    <button class="btn-n" onclick="chamarProximo('N')">CHAMAR NORMAL</button>
-    <button class="btn-p" onclick="chamarProximo('P')">CHAMAR PRIORIDADE</button>
-    <button class="btn-rep" onclick="repetir()">🔁 REPETIR SENHA</button>
-    <button class="btn-print" onclick="imprimirRelatorio()">🖨️ RELATÓRIO</button>
-    <button class="btn-admin" onclick="window.location.href='admin_users.html'">👥 ACESSOS</button>
-    <button class="btn-exit" onclick="deslogar()">🚪 SAIR</button>
-    <div class="history-container">
-        <div class="history-title">ÚLTIMOS CHAMADOS</div>
-        <ul id="history-list"></ul>
-    </div>
-    <button class="btn-reset" onclick="resetar()">LIMPAR TUDO</button>
+<div class="header">
+    <img src="logo-cps.png" alt="Logo CPS" class="logo-painel">
+    <h2 style="color: var(--red); margin: 0; font-size: 1.5rem;">SISTEMA INTEGRADO DE ATENDIMENTO</h2>
 </div>
+
+<div class="container">
+    <div class="card" onclick="irPara('totem.html')">
+        <div style="font-size: 40px;">🎫</div>
+        <h3>TOTEM DE SENHAS</h3>
+        <p>Emissão de senhas físicas para a recepção.</p>
+        <button class="btn-acesso btn-public">ABRIR PÁGINA</button>
+    </div>
+
+    <div class="card" onclick="irPara('tv.html')">
+        <div style="font-size: 40px;">📺</div>
+        <h3>PAINEL DA TV</h3>
+        <p>Exibição das chamadas e alertas sonoros.</p>
+        <button class="btn-acesso btn-public">ABRIR PÁGINA</button>
+    </div>
+
+    <div class="card" onclick="irPara('mobile.html')">
+        <div style="font-size: 40px;">📱</div>
+        <h3>SENHA DIGITAL</h3>
+        <p>Versão mobile para retirada via smartphone.</p>
+        <button class="btn-acesso btn-mobile">ABRIR VERSÃO MOBILE</button>
+    </div>
+
+    <div class="card" onclick="abrirJanela('qrcode.html')">
+        <div style="font-size: 40px;">🖨️</div>
+        <h3>CARTAZ QR CODE</h3>
+        <p>Imprimir cartaz de instrução para os alunos.</p>
+        <button class="btn-acesso btn-print">GERAR IMPRESSÃO</button>
+    </div>
+    
+    <div class="card" onclick="irPara('atendimento.html')">
+        <div style="font-size: 40px;">🎧</div>
+        <h3>PAINEL ATENDENTE</h3>
+        <p>Controle de chamadas e histórico diário.</p>
+        <span class="badge-lock">🔓 ACESSO RESTRITO</span>
+        <button class="btn-acesso btn-public">ACESSAR PAINEL</button>
+    </div>
+
+    <div class="card" onclick="validarAdm('admin_users.html')">
+        <div style="font-size: 40px;">👥</div>
+        <h3>GERENCIAR USUÁRIOS</h3>
+        <p>Criar e remover acessos de atendentes.</p>
+        <span class="badge-lock">🔒 SOMENTE ADMIN</span>
+        <button class="btn-acesso btn-adm">GERENCIAR</button>
+    </div>
+
+    <div class="card" onclick="validarAdm('gerenciar_adms.html')">
+        <div style="font-size: 40px;">🛠️</div>
+        <h3>GERENCIAR ADMS</h3>
+        <p>Gerenciar privilégios de Administrador.</p>
+        <span class="badge-lock">🔒 SOMENTE SUPER ADMIN</span>
+        <button class="btn-acesso btn-config">CONFIGURAR</button>
+    </div>
+</div>
+
+<footer>
+    <p style="margin: 0 0 10px 0; font-size: 0.9rem;">Desenvolvido por: <strong>Ronega Information Security</strong></p>
+    <div class="footer-links">
+        <a href="https://wa.me/5511954991772" target="_blank" style="color: #25D366;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16"> (11) 95499-1772
+        </a>
+        <a href="mailto:ronega.information@gmail.com" style="color: #b30000;">
+            📧 ronega.information@gmail.com
+        </a>
+    </div>
+</footer>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue, runTransaction, get, child, push, update } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -89,105 +231,51 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const auth = getAuth(app);
-    let emailAtendente = "";
-    let ultimoIdSom = "";
 
-    // Funções de Voz
-    window.falar = (texto) => {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(texto);
-        msg.lang = 'pt-BR';
-        msg.rate = 0.9;
-        window.speechSynthesis.speak(msg);
-    };
+    let usuarioLogado = null;
+    let listaAdms = [];
 
-    window.ativarSom = () => {
-        window.falar("O som do sistema foi ativado com sucesso");
-    };
-
-    // Segurança e Inicialização
+    // GUARDA DE SEGURANÇA: Só mostra a página se estiver logado
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             window.location.href = "login.html";
         } else {
-            emailAtendente = user.email;
-            document.getElementById('user-display').innerText = emailAtendente;
-            
-            // Ouvinte dos Contadores
-            onValue(ref(db, 'contadores'), (s) => {
-                const c = s.val() || {};
-                document.getElementById('wait-n').innerText = Math.max(0, (c.totem_N || 0) - (c.chamada_N || 0));
-                document.getElementById('wait-p').innerText = Math.max(0, (c.totem_P || 0) - (c.chamada_P || 0));
-            });
+            usuarioLogado = user;
+            document.getElementById('user-email').innerText = user.email;
+            document.body.style.visibility = "visible"; // Libera a visão da página
 
-            // Ouvinte do Histórico
-            onValue(ref(db, 'historico'), (snapshot) => {
-                const list = document.getElementById('history-list');
-                list.innerHTML = "";
+            // Carrega a lista de ADMs para validar botões restritos
+            onValue(ref(db, 'administradores'), (snapshot) => {
                 const data = snapshot.val();
-                if (data) {
-                    Object.values(data).slice(-15).reverse().forEach(item => {
-                        const li = document.createElement('li');
-                        li.className = 'history-item';
-                        li.innerHTML = `<div class="h-main"><strong>${item.senha}</strong><span>${item.hora}</span></div>`;
-                        list.appendChild(li);
-                    });
-                }
-            });
-
-            // Ouvinte da Chamada Ativa (TV e Som)
-            onValue(ref(db, 'chamada_ativa'), (snapshot) => {
-                const info = snapshot.val();
-                if (!info) return;
-                document.getElementById('display-box').innerText = info.senha;
-                document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
-                document.getElementById('tv').className = 'tv-side ' + (info.tipo === 'P' ? 'priority-active' : '');
-                
-                if (info.id !== ultimoIdSom) {
-                    const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
-                    window.falar(frase);
-                    ultimoIdSom = info.id;
-                }
+                listaAdms = data ? Object.values(data).map(a => a.email.toLowerCase()) : [];
             });
         }
     });
 
-    // Ações de Botões
-    window.chamarProximo = (tipo) => {
-        get(child(ref(db), `contadores`)).then((snapshot) => {
-            const counts = snapshot.val() || {};
-            const proximoNum = (counts['chamada_' + tipo] || 0) + 1;
-            if (proximoNum > (counts['totem_' + tipo] || 0)) return alert("Fila vazia!");
-            
-            runTransaction(ref(db, 'contadores/chamada_' + tipo), (c) => (c || 0) + 1).then(() => {
-                const senha = tipo + proximoNum.toString().padStart(3, '0');
-                const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                const id = Date.now().toString();
-                set(ref(db, 'chamada_ativa'), { senha, tipo, id });
-                push(ref(db, 'historico'), { senha, hora, atendente: emailAtendente });
+    window.entrar = () => { /* Função placeholder para o login */ };
+
+    document.getElementById('logout-trigger').addEventListener('click', () => {
+        if(confirm("Deseja realmente sair do sistema?")) {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
             });
-        });
+        }
+    });
+
+    window.irPara = (url) => { 
+        if(usuarioLogado) { window.location.href = url; } 
+        else { window.location.href = "login.html"; }
     };
 
-    window.repetir = () => {
-        get(ref(db, 'chamada_ativa')).then(s => {
-            if(s.exists()) update(ref(db, 'chamada_ativa'), { id: Date.now().toString() });
-        });
-    };
+    window.abrirJanela = (url) => { window.open(url, '_blank'); };
 
-    window.deslogar = () => { if(confirm("Sair?")) signOut(auth); };
-    window.resetar = () => { if(confirm("CUIDADO: Limpar tudo?")) set(ref(db, '/'), null); };
-    
-    window.imprimirRelatorio = () => {
-        get(ref(db, 'historico')).then((s) => {
-            const d = s.val(); let l = "";
-            if (d) Object.values(d).forEach((i, idx) => {
-                l += `<tr><td>${idx+1}</td><td>${i.senha}</td><td>${i.hora}</td><td>${i.atendente || '-'}</td></tr>`;
-            });
-            const w = window.open('', '', 'width=800,height=600');
-            w.document.write('<html><head><style>table{width:100%;border-collapse:collapse} td,th{border:1px solid #000;padding:8px}</style></head><body><h2>Relatório</h2><table>' + l + '</table></body></html>');
-            w.document.close(); w.print();
-        });
+    window.validarAdm = (url) => {
+        const emailLogado = usuarioLogado.email.toLowerCase();
+        if (usuarioLogado && listaAdms.includes(emailLogado)) {
+            window.location.href = url;
+        } else {
+            alert("ACESSO NEGADO: Seu e-mail (" + emailLogado + ") não tem permissão de Administrador.");
+        }
     };
 </script>
 </body>

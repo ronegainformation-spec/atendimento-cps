@@ -1,0 +1,30 @@
+links
+
+painel de atendimento:
+https://ronegainformation-spec.github.io/atendimento-cps/
+
+
+painel para tv:
+https://ronegainformation-spec.github.io/atendimento-cps/tv.html
+
+
+gerador de senhas celular:
+https://ronegainformation-spec.github.io/atendimento-cps/mobile.html
+
+
+gerador de senhas totem:
+https://ronegainformation-spec.github.io/atendimento-cps/totem.html
+
+--------------------------------console.firebase.google   ------------------------------------------------------
+Project Console: https://console.firebase.google.com/project/sistemacps-743f3/overview
+
+
+https://sistemacps-743f3.web.app
+
+https://sistemacps-743f3.web.app/login.html
+
+https://sistemacps-743f3.web.app/tv.html
+
+https://sistemacps-743f3.web.app/totem.html
+
+https://sistemacps-743f3.web.app/mobile.html

@@ -1,48 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <title>Login - Sistema CPS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - CPS</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 350px; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; color: white; }
+        .login-card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; }
         img { width: 150px; margin-bottom: 20px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #b30000; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        button { width: 100%; padding: 15px; background: #b30000; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+        button:hover { background: #8e0000; }
+        .error { color: #b30000; font-size: 0.8rem; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
-    <div class="login-card">
-        <img src="logo-cps.png" alt="CPS">
-        <h3>Acesso Restrito</h3>
-        <input type="email" id="email" placeholder="E-mail">
-        <input type="password" id="senha" placeholder="Senha">
-        <button onclick="entrar()">ENTRAR</button>
-        <p id="erro" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
-    </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+<div class="login-card">
+    <img src="logo-cps.png" alt="Logo CPS">
+    <h2 style="color: #333; margin-top: 0;">Acesso Restrito</h2>
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="password" id="senha" placeholder="Senha">
+    <button onclick="fazerLogin()">ENTRAR NO PAINEL</button>
+    <div id="erro-msg" class="error">E-mail ou senha incorretos.</div>
+</div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
-            authDomain: "sistemacps-743f3.firebaseapp.com",
-            projectId: "sistemacps-743f3",
-            appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
-        };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
 
-        window.entrar = () => {
-            const email = document.getElementById('email').value;
-            const senha = document.getElementById('senha').value;
-            
-            signInWithEmailAndPassword(auth, email, senha)
-                .then(() => window.location.href = "index.html")
-                .catch(error => document.getElementById('erro').innerText = "Acesso Negado: Usuário ou senha inválidos.");
-        };
-    </script>
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.fazerLogin = () => {
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const erroMsg = document.getElementById('erro-msg');
+
+        signInWithEmailAndPassword(auth, email, senha)
+            .then(() => {
+                window.location.href = "index.html";
+            })
+            .catch((error) => {
+                erroMsg.style.display = "block";
+                console.error(error);
+            });
+    };
+</script>
 </body>
 </html>

@@ -1,51 +1,86 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
+<meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Senha Digital - CPS</title>
     <style>
-        :root { --red: #b30000; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .container { width: 90%; max-width: 400px; background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); text-align: center; border-top: 10px solid var(--red); }
-        img { width: 150px; margin-bottom: 20px; }
-        h2 { color: #333; font-size: 1.2rem; margin-bottom: 25px; }
-        
-        button { width: 100%; padding: 20px; margin: 10px 0; font-size: 1.3rem; font-weight: bold; border: none; border-radius: 15px; cursor: pointer; color: white; transition: 0.2s; }
+        :root { --red: #b30000; --bg: #f8f9fa; --dark: #1a1a1a; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg); 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+        }
+        .btn-voltar {
+            position: absolute; top: 15px; left: 15px;
+            background: rgba(0,0,0,0.1); color: #666;
+            text-decoration: none; padding: 8px 12px;
+            border-radius: 8px; font-size: 0.75rem;
+            font-weight: bold; display: flex; align-items: center; gap: 5px;
+        }
+        .container { 
+            width: 90%; max-width: 400px; background: white; 
+            padding: 30px; border-radius: 30px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
+            text-align: center; border-top: 10px solid var(--red); 
+            margin: auto; 
+        }
+        img { width: 140px; margin-bottom: 20px; }
+        h2 { color: #333; font-size: 1.2rem; margin-bottom: 25px; font-weight: 600; }
+        button { 
+            width: 100%; padding: 18px; margin: 10px 0; 
+            font-size: 1.2rem; font-weight: bold; border: none; 
+            border-radius: 15px; cursor: pointer; color: white; 
+            transition: 0.2s; box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+        }
         .btn-n { background: var(--red); }
         .btn-p { background: #f1c40f; color: black; }
-        
-        /* Estilo da Senha Gerada */
+        button:active { transform: translateY(2px); box-shadow: none; }
         #ticket-digital { display: none; animation: fadeIn 0.5s; }
-        .senha-viva { font-size: 5rem; font-weight: 900; color: var(--red); margin: 20px 0; display: block; }
-        .info { color: #666; font-size: 0.9rem; line-height: 1.5; }
-        .footer { margin-top: 20px; font-size: 0.8rem; color: #aaa; }
-
+        .senha-viva { 
+            font-size: 5.5rem; font-weight: 900; 
+            color: var(--red); margin: 15px 0; 
+            display: block; letter-spacing: -2px;
+        }
+        .info { color: #666; font-size: 0.95rem; line-height: 1.5; margin-bottom: 10px; }
+        .footer-mobile { 
+            padding: 20px; font-size: 0.7rem; color: #aaa; 
+            text-align: center; letter-spacing: 1px;
+        }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
+<a href="index.html" class="btn-voltar">← VOLTAR</a>
+
 <div class="container" id="app-content">
- 
-    <img src="logo-cps.png" alt="Logo CPS" style="width: 150px; margin-bottom: 20px;">
-   
+    <img src="logo-cps.png" alt="Logo CPS">
+    
     <div id="selection-area">
         <h2>Escolha seu atendimento:</h2>
         <button class="btn-n" onclick="gerarDigital('N')">NORMAL</button>
         <button class="btn-p" onclick="gerarDigital('P')">PRIORITÁRIO</button>
-        <p class="info" style="margin-top:20px;">Sua senha será exibida no painel da recepção.</p>
+        <p class="info" style="margin-top:20px;">Toque no botão para gerar sua senha virtual.</p>
     </div>
 
     <div id="ticket-digital">
-        <h3 style="margin:0; color:#444;">SUA SENHA É:</h3>
+        <h3 style="margin:0; color:#444; font-weight: 400;">SUA SENHA É</h3>
         <span id="res-senha" class="senha-viva">---</span>
-        <div id="res-tipo" style="font-weight:bold; text-transform:uppercase; margin-bottom:10px;"></div>
-        <p class="info">Por favor, aguarde na recepção.<br>O painel irá chamar seu número.</p>
-        <button onclick="location.reload()" style="background:#ddd; color:#666; font-size:0.9rem; padding:10px; margin-top:20px;">Retirar outra senha</button>
+        <div id="res-tipo" style="font-weight:bold; text-transform:uppercase; margin-bottom:10px; color: #333;"></div>
+        <p class="info">Acompanhe o painel na recepção.<br>Tire um <b>Print</b> desta tela.</p>
+        <button onclick="location.reload()" style="background:#f0f0f0; color:#666; font-size:0.8rem; padding:12px; margin-top:20px; box-shadow: none;">RETIRAR OUTRA SENHA</button>
     </div>
+</div>
 
-    <div class="footer">Sistema de Senha Sustentável - CPS</div>
+<div class="footer-mobile">
+    SISTEMA DIGITAL SUSTENTÁVEL<br>
+    <b>RONEGA INFORMATION SECURITY</b>
 </div>
 
 <script type="module">
@@ -66,25 +101,31 @@
     const db = getDatabase(app);
 
     window.gerarDigital = (tipo) => {
+        // Referência direta ao nó do contador
         const refContador = ref(db, 'contadores/totem_' + tipo);
         
+        console.log("Tentando gerar senha tipo: " + tipo);
+
         runTransaction(refContador, (current) => {
             return (current || 0) + 1;
-        }).then((result) => {
+        })
+        .then((result) => {
             if (result.committed) {
                 const num = result.snapshot.val().toString().padStart(3, '0');
                 const senhaGerada = tipo + num;
 
-                // Esconde seleção e mostra a senha
                 document.getElementById('selection-area').style.display = 'none';
                 document.getElementById('ticket-digital').style.display = 'block';
                 
                 document.getElementById('res-senha').innerText = senhaGerada;
                 document.getElementById('res-tipo').innerText = tipo === 'N' ? 'Atendimento Normal' : 'Atendimento Prioritário';
                 
-                // Vibração curta no celular (se suportado)
-                if (navigator.vibrate) navigator.vibrate(100);
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             }
+        })
+        .catch((error) => {
+            console.error("Erro Firebase:", error);
+            alert("Erro de conexão: Certifique-se que o banco de dados está aberto para gravação pública.");
         });
     };
 </script>
