@@ -88,7 +88,6 @@
         .history-card strong { font-size: 2.2rem; display: block; color: white; }
         .history-card span { font-size: 0.8rem; color: #aaa; }
 
-        /* RODAPÉ PADRONIZADO RONEGA */
         .rodape-tv {
             width: 100%;
             background-color: #000;
@@ -107,9 +106,18 @@
         .btn-ui:hover { opacity: 1; background: var(--red); }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Banner de Aviso de Som */
+        #aviso-som {
+            position: fixed; top: 0; left: 0; width: 100%; background: var(--red);
+            color: white; text-align: center; padding: 5px; font-weight: bold; z-index: 1000;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body>
+<body onclick="ativarSom()">
+
+<div id="aviso-som">⚠️ O SOM ESTÁ DESATIVADO - CLIQUE AQUI PARA ATIVAR</div>
 
 <div class="main-display" id="tv">
     <div class="logo-container">
@@ -131,7 +139,7 @@
 
 <div class="controls">
     <button class="btn-ui" onclick="window.location.href='index.html'">🏠 MENU</button>
-    <button class="btn-ui" onclick="ativarSom()">🔊 SOM</button>
+    <button class="btn-ui" onclick="ativarSom()">🔊 TESTAR SOM</button>
 </div>
 
 <script type="module">
@@ -150,42 +158,69 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    
     let ultimoIdSom = "";
+    let somHabilitado = false;
 
+    // Função de Fala com Reset de Motor
     window.falar = (texto) => {
+        if (!somHabilitado) return;
+
+        // Reset forçado do motor de voz do navegador
         window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(texto);
-        msg.lang = 'pt-BR';
-        msg.rate = 0.85;
-        window.speechSynthesis.speak(msg);
+        
+        setTimeout(() => {
+            const msg = new SpeechSynthesisUtterance(texto);
+            msg.lang = 'pt-BR';
+            msg.rate = 0.85;
+            msg.pitch = 1.0;
+            msg.volume = 1.0;
+            
+            // Evento para debugar se a fala começou
+            msg.onstart = () => console.log("Falando: " + texto);
+            msg.onerror = (e) => console.error("Erro na fala: ", e);
+
+            window.speechSynthesis.speak(msg);
+        }, 50); 
     };
 
-    window.ativarSom = () => { window.falar("Som do painel ativado"); };
+    window.ativarSom = () => { 
+        somHabilitado = true;
+        document.getElementById('aviso-som').style.display = 'none';
+        window.falar("Som ativado com sucesso");
+    };
 
+    // Escuta a chamada ativa
     onValue(ref(db, 'chamada_ativa'), (snapshot) => {
         const info = snapshot.val();
         if (!info) return;
 
+        // Atualiza a tela (isso está funcionando)
         document.getElementById('display-box').innerText = info.senha;
         document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
         document.getElementById('tv').className = 'main-display ' + (info.tipo === 'P' ? 'priority-active' : '');
         
-        if (info.horario !== ultimoIdSom) {
+        // Lógica de áudio disparada pelo horário
+        if (info.horario && info.horario !== ultimoIdSom) {
+            console.log("Nova chamada ou repetição detectada!");
+            
             const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
+            
             window.falar(frase);
             ultimoIdSom = info.horario;
-            
+
+            // Animação visual
             const box = document.getElementById('display-box');
             box.style.animation = 'none';
             setTimeout(() => box.style.animation = 'pulse 1.5s infinite alternate', 10);
         }
     });
 
+    // Histórico (Original)
     onValue(ref(db, 'historico'), (snapshot) => {
         const historyRow = document.getElementById('tv-history');
         historyRow.innerHTML = ""; 
         const data = snapshot.val();
-        
         if (data) {
             const itens = Object.values(data).reverse().slice(1, 6);
             itens.forEach(item => {
