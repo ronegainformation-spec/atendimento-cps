@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Central de Comando - CPS</title>
     <style>
-        :root { --red: #b30000; --gold: #f1c40f; --bg: #f4f4f4; --dark: #1a1a1a; --orange: #e67e22; --green: #27ae60; --blue: #2980b9; }
+        :root { 
+            --red: #b30000; 
+            --gold: #f1c40f; 
+            --bg: #f4f4f4; 
+            --dark: #1a1a1a; 
+            --orange: #e67e22; 
+            --green: #27ae60; 
+            --blue: #2980b9; 
+        }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -16,7 +24,8 @@
             flex-direction: column; 
             align-items: center; 
             min-height: 100vh;
-            visibility: hidden; /* Esconde a página até validar o login */
+            visibility: hidden; 
+            padding-bottom: 70px; /* Espaço para o rodapé fixo */
         }
 
         #user-bar {
@@ -63,7 +72,6 @@
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
             gap: 15px; 
-            padding-bottom: 50px; 
         }
 
         .card {
@@ -115,24 +123,24 @@
             color: #888;
         }
 
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            text-align: center;
-            background: white;
+        /* RODAPÉ PADRONIZADO RONEGA INFOSEC */
+        .rodape-global {
+            position: fixed;
+            bottom: 0;
+            left: 0;
             width: 100%;
-            border-top: 1px solid #ddd;
+            background-color: var(--dark);
+            color: #aaa;
+            text-align: center;
+            padding: 12px 0;
+            font-size: 11px;
+            border-top: 3px solid var(--red);
+            z-index: 1000;
         }
 
-        .footer-links a {
-            text-decoration: none;
-            margin: 0 10px;
-            font-weight: bold;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
+        .rodape-global strong { color: white; }
+        .rodape-global a { color: #25D366; text-decoration: none; margin-left: 10px; }
+        
     </style>
 </head>
 <body>
@@ -148,17 +156,18 @@
 </div>
 
 <div class="container">
-    <div class="card" onclick="irPara('totem.html')">
-        <div style="font-size: 40px;">🎫</div>
-        <h3>TOTEM DE SENHAS</h3>
-        <p>Emissão de senhas físicas para a recepção.</p>
-        <button class="btn-acesso btn-public">ABRIR PÁGINA</button>
-    </div>
 
     <div class="card" onclick="irPara('tv.html')">
         <div style="font-size: 40px;">📺</div>
         <h3>PAINEL DA TV</h3>
         <p>Exibição das chamadas e alertas sonoros.</p>
+        <button class="btn-acesso btn-public">ABRIR PÁGINA</button>
+    </div>
+    
+    <div class="card" onclick="irPara('totem.html')">
+        <div style="font-size: 40px;">🎫</div>
+        <h3>TOTEM DE SENHAS</h3>
+        <p>Emissão de senhas físicas para a recepção.</p>
         <button class="btn-acesso btn-public">ABRIR PÁGINA</button>
     </div>
 
@@ -167,6 +176,13 @@
         <h3>SENHA DIGITAL</h3>
         <p>Versão mobile para retirada via smartphone.</p>
         <button class="btn-acesso btn-mobile">ABRIR VERSÃO MOBILE</button>
+    </div>
+    
+    <div class="card" onclick="irPara('personalizado.html')">
+        <div style="font-size: 40px; color: #b30000;">⚡</div>
+        <h3>SENHA ESPECIAL</h3>
+        <p>Emissão manual para contingência ou prioridades.</p>
+        <button class="btn-acesso btn-adm">SENHAS ESPECIAIS</button>
     </div>
 
     <div class="card" onclick="abrirJanela('qrcode.html')">
@@ -201,16 +217,9 @@
     </div>
 </div>
 
-<footer>
-    <p style="margin: 0 0 10px 0; font-size: 0.9rem;">Desenvolvido por: <strong>Ronega Information Security</strong></p>
-    <div class="footer-links">
-        <a href="https://wa.me/5511954991772" target="_blank" style="color: #25D366;">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="16"> (11) 95499-1772
-        </a>
-        <a href="mailto:ronega.information@gmail.com" style="color: #b30000;">
-            📧 ronega.information@gmail.com
-        </a>
-    </div>
+<footer class="rodape-global">
+    Desenvolvido por <strong>Ronega Information Security</strong> | CPS &copy; 2025
+    <a href="https://wa.me/5511954991772" target="_blank">💬 Suporte</a>
 </footer>
 
 <script type="module">
@@ -235,24 +244,20 @@
     let usuarioLogado = null;
     let listaAdms = [];
 
-    // GUARDA DE SEGURANÇA: Só mostra a página se estiver logado
     onAuthStateChanged(auth, (user) => {
         if (!user) {
             window.location.href = "login.html";
         } else {
             usuarioLogado = user;
             document.getElementById('user-email').innerText = user.email;
-            document.body.style.visibility = "visible"; // Libera a visão da página
+            document.body.style.visibility = "visible"; 
 
-            // Carrega a lista de ADMs para validar botões restritos
             onValue(ref(db, 'administradores'), (snapshot) => {
                 const data = snapshot.val();
                 listaAdms = data ? Object.values(data).map(a => a.email.toLowerCase()) : [];
             });
         }
     });
-
-    window.entrar = () => { /* Função placeholder para o login */ };
 
     document.getElementById('logout-trigger').addEventListener('click', () => {
         if(confirm("Deseja realmente sair do sistema?")) {
@@ -262,11 +267,7 @@
         }
     });
 
-    window.irPara = (url) => { 
-        if(usuarioLogado) { window.location.href = url; } 
-        else { window.location.href = "login.html"; }
-    };
-
+    window.irPara = (url) => { if(usuarioLogado) window.location.href = url; };
     window.abrirJanela = (url) => { window.open(url, '_blank'); };
 
     window.validarAdm = (url) => {
@@ -274,7 +275,7 @@
         if (usuarioLogado && listaAdms.includes(emailLogado)) {
             window.location.href = url;
         } else {
-            alert("ACESSO NEGADO: Seu e-mail (" + emailLogado + ") não tem permissão de Administrador.");
+            alert("ACESSO NEGADO: Você não tem permissão de Administrador.");
         }
     };
 </script>

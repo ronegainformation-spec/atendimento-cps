@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senha Especial - CPS | Ronega InfoSec</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    
+    <style>
+        :root {
+            --cps-vermelho: #b30000;
+            --cps-vermelho-hover: #8b0000;
+            --cps-cinza-escuro: #333;
+            --cps-fundo: #f4f4f4;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background-color: var(--cps-fundo); 
+            display: flex; 
+            flex-direction: column;
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+
+        .container { 
+            background: white; 
+            width: 85%; 
+            max-width: 360px; 
+            padding: 20px 25px; /* Reduzido para ganhar espaço */
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            text-align: center; 
+            border-top: 8px solid var(--cps-vermelho);
+            margin-bottom: 60px; /* Margem para não bater no rodapé */
+        }
+
+        .logo-projeto { 
+            width: 140px; /* Reduzido de 180px */
+            height: auto; 
+            margin-bottom: 15px; 
+        }
+
+        h2 { color: var(--cps-vermelho); margin: 0 0 5px 0; font-size: 20px; }
+        p { color: #555; margin-bottom: 20px; font-size: 13px; }
+
+        .input-group { display: flex; flex-direction: column; gap: 12px; }
+
+        input { 
+            padding: 12px; 
+            border: 2px solid #eee; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            text-align: center; 
+            outline: none; 
+            font-weight: bold;
+        }
+
+        .btn-enviar { 
+            background-color: var(--cps-vermelho); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            font-size: 14px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            transition: background 0.3s;
+        }
+
+        .btn-enviar:hover { background-color: var(--cps-vermelho-hover); }
+
+        .btn-voltar { 
+            margin-top: 15px; 
+            background-color: #f0f0f0; 
+            color: #444; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            cursor: pointer; 
+            width: 100%;
+            font-weight: bold;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--cps-cinza-escuro);
+            color: #aaa;
+            text-align: center;
+            padding: 10px 0;
+            font-size: 11px;
+            border-top: 3px solid var(--cps-vermelho);
+        }
+
+        footer strong { color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <img src="logo-cps.png" alt="Logo CPS" class="logo-projeto">
+    
+    <h2>Senha Especial</h2>
+    <p>Painel de Contingência</p>
+
+    <div class="input-group">
+        <input type="text" id="prefixo" placeholder="PREFIXO" maxlength="5" style="text-transform: uppercase;">
+        <input type="number" id="numero" placeholder="NÚMERO">
+        
+        <button class="btn-enviar" onclick="gerarSenhaManual()">
+            ACIONAR PAINEL
+        </button>
+    </div>
+
+    <button class="btn-voltar" onclick="window.location.href='index.html'">
+        VOLTAR AO MENU
+    </button>
+</div>
+
+<footer>
+    Desenvolvido por <strong>Ronega Information Security</strong> | CPS &copy; 2025
+</footer>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+        authDomain: "sistemacps-743f3.firebaseapp.com",
+        databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+        projectId: "sistemacps-743f3",
+        storageBucket: "sistemacps-743f3.firebasestorage.app",
+        messagingSenderId: "127411684616",
+        appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    function gerarSenhaManual() {
+        const pref = document.getElementById('prefixo').value.trim().toUpperCase();
+        const num = document.getElementById('numero').value.trim();
+        
+        if(!pref || !num) {
+            alert("⚠️ Preencha todos os campos!");
+            return;
+        }
+
+        const senhaCompleta = pref + num;
+
+        database.ref("chamada_ativa").update({
+            senha: senhaCompleta,
+            guiche: "ADM",
+            horario: firebase.database.ServerValue.TIMESTAMP
+        })
+        .then(() => {
+            return database.ref("historico").push({
+                senha: senhaCompleta,
+                tipo: "MANUAL_ADM",
+                desenvolvedor: "Ronega InfoSec",
+                horario: firebase.database.ServerValue.TIMESTAMP
+            });
+        })
+        .then(() => {
+            alert("✅ Senha " + senhaCompleta + " enviada!");
+            document.getElementById('prefixo').value = '';
+            document.getElementById('numero').value = '';
+        });
+    }
+
+    firebase.auth().onAuthStateChanged(user => {
+        if (!user) window.location.href = "login.html";
+    });
+</script>
+
+</body>
+</html>

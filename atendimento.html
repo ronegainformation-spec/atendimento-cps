@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Atendimento - CPS</title>
+    <title>Controle de Atendimento - CPS | Ronega InfoSec</title>
     <style>
-        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; --blue: #2980b9; --green: #27ae60; --light-red: #fff0f0; }
+        :root { 
+            --red: #b30000; 
+            --gold: #f1c40f; 
+            --bg: #1a1a1a; 
+            --blue: #2980b9; 
+            --green: #27ae60; 
+            --dark: #111;
+        }
         
-        /* Blindagem Visual Inicial */
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
@@ -16,53 +22,141 @@
             display: flex; 
             flex-direction: column; 
             min-height: 100vh; 
-            visibility: hidden; /* Escondido até validar login */
+            visibility: hidden; 
         }
         
         @media (min-width: 992px) { 
             body { flex-direction: row; overflow: hidden; height: 100vh; } 
         }
 
-        /* Lado da TV (Preview) */
-        .tv-side { background: var(--bg); color: white; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        /* Lado da TV (Preview em tempo real) */
+        .tv-side { 
+            background: var(--bg); 
+            color: white; 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+            padding: 20px; 
+            position: relative;
+        }
+        
         .priority-active { background: var(--gold) !important; color: #000 !important; }
         
-        .logo-container { background: white; padding: 15px 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .tv-logo { max-width: 200px; width: 100%; height: auto; display: block; }
+        .logo-container { background: white; padding: 10px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .tv-logo { max-width: 150px; }
         
-        #display-box { font-size: clamp(4rem, 15vw, 11rem); font-weight: 900; background: white; color: var(--red); padding: 10px 4vw; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); line-height: 1.1; }
+        #display-box { 
+            font-size: clamp(4rem, 12vw, 10rem); 
+            font-weight: 900; 
+            background: white; 
+            color: var(--red); 
+            padding: 10px 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            line-height: 1; 
+        }
 
         /* Painel Admin Lateral */
-        .admin-side { background: white; padding: 15px; border-top: 6px solid var(--red); display: flex; flex-direction: column; gap: 8px; width: 100%; box-sizing: border-box; overflow-y: auto; }
-        @media (min-width: 992px) { .admin-side { width: 360px; height: 100vh; border-left: 6px solid var(--red); border-top: none; } }
+        .admin-side { 
+            background: white; 
+            padding: 15px; 
+            border-top: 6px solid var(--red); 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            width: 100%; 
+            box-sizing: border-box; 
+            overflow-y: auto; 
+        }
         
-        .user-info { font-size: 0.75rem; color: #333; background: #f8f9fa; padding: 8px; border-radius: 6px; text-align: center; border: 1px solid #ddd; font-weight: bold; }
+        @media (min-width: 992px) { 
+            .admin-side { width: 380px; height: 100vh; border-left: 6px solid var(--red); border-top: none; } 
+        }
         
-        #admin-menu { display: none; background: #fff3cd; border: 1px solid #ffeeba; padding: 10px; border-radius: 8px; margin-bottom: 5px; }
+        .user-info { 
+            font-size: 0.75rem; 
+            color: #333; 
+            background: #f1f1f1; 
+            padding: 10px; 
+            border-radius: 8px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            font-weight: bold; 
+        }
+        
+        #admin-menu { 
+            display: none; 
+            background: #fff3cd; 
+            border: 1px solid #ffeeba; 
+            padding: 10px; 
+            border-radius: 8px; 
+        }
 
-        .stats { display: flex; gap: 5px; }
-        .stat-box { flex: 1; background: #fff; padding: 8px; border-radius: 8px; text-align: center; border: 1px solid #ddd; font-size: 0.75rem; }
-        .wait-num { display: block; font-size: 1.2rem; font-weight: bold; color: var(--red); }
+        .stats { display: flex; gap: 8px; }
+        .stat-box { 
+            flex: 1; 
+            background: #fff; 
+            padding: 10px; 
+            border-radius: 8px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+            font-size: 0.7rem; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .wait-num { display: block; font-size: 1.4rem; font-weight: bold; color: var(--red); }
 
         .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.7rem; transition: 0.2s; text-transform: uppercase; }
+        
+        button { 
+            width: 100%; 
+            padding: 12px 5px; 
+            border: none; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 0.7rem; 
+            transition: 0.2s; 
+            text-transform: uppercase; 
+        }
+        
+        button:active { transform: scale(0.98); }
         
         .btn-n { background: var(--red); color: white; }
         .btn-p { background: var(--gold); color: black; }
         .btn-blue { background: var(--blue); color: white; }
-        .btn-gray { background: #7f8c8d; color: white; }
-        .btn-green { background: var(--green); color: white; font-size: 0.65rem; }
-        .btn-reset { background: #333; color: white; margin-top: 5px; font-size: 0.65rem; }
-        .btn-exit { background: #e74c3c; color: white; padding: 8px; }
+        .btn-gray { background: #666; color: white; }
+        .btn-green { background: var(--green); color: white; }
+        .btn-reset { background: #000; color: #fff; margin-top: 5px; font-size: 0.6rem; border: 1px solid #444; }
+        .btn-exit { background: #e74c3c; color: white; }
 
-        .history-container { margin-top: 5px; flex-grow: 1; border: 1px solid #ddd; border-radius: 6px; overflow-y: auto; background: #fff; max-height: 200px; }
-        #history-list { list-style: none; padding: 0; margin: 0; }
-        .history-item { border-bottom: 1px solid #eee; padding: 8px 12px; font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+        .history-container { 
+            flex-grow: 1; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            background: #fff; 
+            display: flex;
+            flex-direction: column;
+            min-height: 150px;
+        }
+        
+        #history-list { list-style: none; padding: 0; margin: 0; overflow-y: auto; flex: 1; }
+        .history-item { border-bottom: 1px solid #eee; padding: 8px 12px; font-size: 0.75rem; display: flex; justify-content: space-between; }
         
         .ronega-footer {
-            background: #f1f1f1; padding: 10px; border-radius: 6px; text-align: center;
-            font-size: 0.65rem; color: #444; border: 1px solid #ddd; margin-top: 5px;
+            background: var(--dark); 
+            padding: 12px; 
+            border-radius: 8px; 
+            text-align: center;
+            font-size: 0.65rem; 
+            color: #888; 
+            margin-top: 5px;
+            line-height: 1.4;
         }
+        .ronega-footer strong { color: #eee; }
     </style>
 </head>
 <body>
@@ -72,17 +166,18 @@
         <img src="logo-cps.png" alt="Logo CPS" class="tv-logo">
     </div>
 
+    <div style="font-size: 1rem; letter-spacing: 5px; color: #888; margin-bottom: 10px;">PREVIEW DO PAINEL TV</div>
     <div id="display-box">---</div>
-    <div id="label-tipo" style="margin-top: 15px; font-size: 1.3rem; font-weight: bold; letter-spacing: 2px;">AGUARDANDO...</div>
-    <p style="color: #666; font-size: 0.8rem; margin-top: 10px;">(A TV exibirá esta mesma tela)</p>
-    <button style="width:auto; background:#444; color:white; margin-top:20px; padding: 10px 25px;" onclick="ativarSom()">🔊 TESTAR ÁUDIO</button>
+    <div id="label-tipo" style="margin-top: 15px; font-size: 1.2rem; font-weight: bold; letter-spacing: 2px;">AGUARDANDO...</div>
+    
+    <button style="width:auto; background:rgba(255,255,255,0.1); color:white; margin-top:30px; padding: 8px 20px; font-size: 10px;" onclick="ativarSom()">🔊 TESTAR ÁUDIO DO NAVEGADOR</button>
 </div>
 
 <div class="admin-side">
-    <div id="user-display" class="user-info">Atendente: ...</div>
+    <div id="user-display" class="user-info">Acessando sistema...</div>
 
     <div id="admin-menu">
-        <div style="font-size: 0.65rem; font-weight: bold; color: #856404; margin-bottom: 5px; text-align: center;">ÁREA DO ADMINISTRADOR</div>
+        <div style="font-size: 0.6rem; font-weight: bold; color: #856404; margin-bottom: 5px; text-align: center;">GERENCIAMENTO MASTER</div>
         <div class="btn-grid">
             <button class="btn-green" onclick="window.location.href='admin_users.html'">👥 USUÁRIOS</button>
             <button class="btn-gray" style="background:#444" onclick="window.location.href='gerenciar_adms.html'">⚙️ ADMS</button>
@@ -90,41 +185,40 @@
     </div>
 
     <div class="stats">
-        <div class="stat-box">FILA NORMAL <span id="wait-n" class="wait-num">0</span></div>
-        <div class="stat-box">FILA PRIO <span id="wait-p" class="wait-num">0</span></div>
+        <div class="stat-box">EM ESPERA (N) <span id="wait-n" class="wait-num">0</span></div>
+        <div class="stat-box">EM ESPERA (P) <span id="wait-p" class="wait-num">0</span></div>
     </div>
 
     <div class="btn-grid">
-        <button class="btn-n" onclick="chamarProximo('N')">PRÓXIMO NORMAL</button>
-        <button class="btn-p" onclick="chamarProximo('P')">PRÓXIMO PRIO</button>
-        <button class="btn-gray" onclick="chamarAnterior('N')">VOLTAR N</button>
-        <button class="btn-gray" onclick="chamarAnterior('P')">VOLTAR P</button>
-        <button class="btn-blue" onclick="repetir()">REPETIR CHAMADA</button>
-        <button class="btn-blue" onclick="imprimirRelatorio()">GERAR RELATÓRIO</button>
+        <button class="btn-n" style="grid-column: span 2; padding: 18px;" onclick="chamarProximo('N')">🔔 CHAMAR PRÓXIMO NORMAL</button>
+        <button class="btn-p" style="grid-column: span 2; padding: 18px;" onclick="chamarProximo('P')">⭐ CHAMAR PRÓXIMO PRIORITÁRIO</button>
+        <button class="btn-gray" onclick="chamarAnterior('N')">VOLTAR (N)</button>
+        <button class="btn-gray" onclick="chamarAnterior('P')">VOLTAR (P)</button>
+        <button class="btn-blue" onclick="repetir()">🔁 REPETIR ÚLTIMA</button>
+        <button class="btn-blue" onclick="imprimirRelatorio()">📊 RELATÓRIO HOJE</button>
     </div>
     
-    <button class="btn-reset" id="btn-reset-master" onclick="resetarSistema()">⚠️ RESET DIÁRIO (Zerar Tudo)</button>
+    <button class="btn-reset" id="btn-reset-master" onclick="resetarSistema()">🔴 RESET GERAL DO BANCO (CUIDADO)</button>
 
     <div class="history-container">
-        <div style="font-size: 0.65rem; font-weight: bold; padding: 8px; text-align: center; background: #b30000; color: white; position: sticky; top: 0;">LOG DE ATIVIDADES HOJE</div>
+        <div style="font-size: 0.65rem; font-weight: bold; padding: 8px; text-align: center; background: var(--dark); color: white;">HISTÓRICO RECENTE</div>
         <ul id="history-list"></ul>
     </div>
 
-    <div class="ronega-footer">
-        <strong>Ronega Information Security</strong><br>
-        Suporte: (11) 95499-1772
+ <div style="display: flex; gap: 5px; margin-top: 5px;">
+        <button class="btn-blue" style="background: #333; flex: 1;" onclick="window.location.href='index.html'">🏠 INÍCIO</button>
+        <button class="btn-exit" style="flex: 1;" onclick="deslogar()">🔴 SAIR</button>
     </div>
-
-    <div style="display: flex; gap: 5px; margin-top: 5px;">
-        <button class="btn-blue" style="background: #333; flex: 1;" onclick="window.location.href='index.html'">🏠 VOLTAR</button>
-        <button class="btn-exit" style="flex: 1;" onclick="deslogar()">🔴 LOGOUT</button>
+  <div class="ronega-footer">
+        Desenvolvido por <strong>Ronega Information Security</strong><br>
+        Engenharia de Sistemas e Segurança Cibernética
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getDatabase, ref, set, onValue, get, child, push, update, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-    import { getAuth, onAuthStateChanged, signOut, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
@@ -144,28 +238,26 @@
     let ultimoIdSom = "";
     let listaAdms = [];
 
-    // --- SEGURANÇA E AUTH ---
     onAuthStateChanged(auth, (user) => {
         if (!user) { 
             window.location.href = "login.html"; 
         } else { 
             emailAtendente = user.email.toLowerCase();
-            document.getElementById('user-display').innerText = "Atendente: " + emailAtendente;
-            document.body.style.visibility = "visible"; // Blindagem removida após validar login
+            document.getElementById('user-display').innerText = "👤 " + emailAtendente;
+            document.body.style.visibility = "visible";
 
-            // Checar se é ADM para liberar botões extras
             onValue(ref(db, 'administradores'), (snapshot) => {
                 const data = snapshot.val();
                 listaAdms = data ? Object.values(data).map(a => a.email.toLowerCase()) : [];
-                document.getElementById('admin-menu').style.display = listaAdms.includes(emailAtendente) ? 'block' : 'none';
-                document.getElementById('btn-reset-master').style.display = listaAdms.includes(emailAtendente) ? 'block' : 'none';
+                const isAdm = listaAdms.includes(emailAtendente);
+                document.getElementById('admin-menu').style.display = isAdm ? 'block' : 'none';
+                document.getElementById('btn-reset-master').style.display = isAdm ? 'block' : 'none';
             });
 
             inicializarSistema();
         }
     });
 
-    // --- FUNÇÕES DE ÁUDIO ---
     window.falar = (texto) => {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(texto);
@@ -174,38 +266,33 @@
         window.speechSynthesis.speak(msg);
     };
 
-    window.ativarSom = () => { window.falar("O áudio do painel de atendimento está funcionando corretamente."); };
+    window.ativarSom = () => { window.falar("Teste de áudio concluído."); };
 
-    // --- LÓGICA DO SISTEMA ---
     function inicializarSistema() {
-        // Monitorar filas
         onValue(ref(db, 'contadores'), (s) => {
             const c = s.val() || {};
             document.getElementById('wait-n').innerText = Math.max(0, (c.totem_N || 0) - (c.chamada_N || 0));
             document.getElementById('wait-p').innerText = Math.max(0, (c.totem_P || 0) - (c.chamada_P || 0));
         });
 
-        // Monitorar histórico
         onValue(ref(db, 'historico'), (snapshot) => {
             const list = document.getElementById('history-list');
             list.innerHTML = "";
             const data = snapshot.val();
             if (data) {
-                Object.values(data).slice(-20).reverse().forEach(item => {
+                Object.values(data).slice(-15).reverse().forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'history-item';
                     if (item.acao === 'RESET_TOTAL') {
-                        li.style.backgroundColor = '#fff0f0';
-                        li.innerHTML = `<span style="color:red; font-weight:bold">SISTEMA REINICIADO</span> <span>${item.hora}</span>`;
+                        li.innerHTML = `<span style="color:red"><b>RESET GERAL</b></span> <span>${item.hora}</span>`;
                     } else {
-                        li.innerHTML = `<span>Senha <strong>${item.senha}</strong> <small>(${item.atendente.split('@')[0]})</small></span> <span>${item.hora}</span>`;
+                        li.innerHTML = `<span>Senha <b>${item.senha}</b></span> <span>${item.hora}</span>`;
                     }
                     list.appendChild(li);
                 });
             }
         });
 
-        // Monitorar chamada ativa (Preview da TV)
         onValue(ref(db, 'chamada_ativa'), (snapshot) => {
             const info = snapshot.val();
             if (!info) { 
@@ -217,7 +304,6 @@
             document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'PRIORIDADE' : 'NORMAL';
             document.getElementById('tv').className = 'tv-side ' + (info.tipo === 'P' ? 'priority-active' : '');
             
-            // Falar apenas se o ID mudou (nova chamada)
             if (info.id !== ultimoIdSom) {
                 const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
                 window.falar(frase);
@@ -226,12 +312,11 @@
         });
     }
 
-    // --- CONTROLES ---
     window.chamarProximo = (tipo) => {
         get(child(ref(db), `contadores`)).then((snapshot) => {
             const counts = snapshot.val() || {};
             const proximoNum = (counts['chamada_' + tipo] || 0) + 1;
-            if (proximoNum > (counts['totem_' + tipo] || 0)) return alert("Não há senhas na fila " + (tipo==='P'?'Prioritária':'Normal'));
+            if (proximoNum > (counts['totem_' + tipo] || 0)) return alert("Fila vazia.");
             executarChamada(tipo, proximoNum);
         });
     };
@@ -240,7 +325,7 @@
         get(child(ref(db), `contadores`)).then((snapshot) => {
             const counts = snapshot.val() || {};
             const anteriorNum = (counts['chamada_' + tipo] || 0) - 1;
-            if (anteriorNum < 1) return alert("Nenhuma senha anterior registrada.");
+            if (anteriorNum < 1) return alert("Início da fila.");
             executarChamada(tipo, anteriorNum);
         });
     };
@@ -258,57 +343,34 @@
     window.repetir = () => {
         get(ref(db, 'chamada_ativa')).then(s => {
             if(s.exists()) update(ref(db, 'chamada_ativa'), { id: Date.now().toString() });
-            else alert("Nenhuma senha sendo chamada no momento.");
         });
     };
 
     window.resetarSistema = async () => {
-        if (!listaAdms.includes(emailAtendente)) return alert("Apenas Administradores podem resetar o banco.");
-        
-        if (confirm("ATENÇÃO: Isso apagará todas as senhas e o histórico de hoje. Continuar?")) {
+        if (!listaAdms.includes(emailAtendente)) return;
+        if (confirm("Zerar todas as filas e histórico?")) {
             const h = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-            try {
-                await remove(ref(db, 'contadores'));
-                await remove(ref(db, 'chamada_ativa'));
-                await remove(ref(db, 'historico')); 
-                await push(ref(db, 'historico'), { acao: 'RESET_TOTAL', hora: h, atendente: emailAtendente });
-                alert("O sistema foi zerado com sucesso.");
-            } catch (err) { alert("Erro ao resetar: " + err.message); }
+            await remove(ref(db, 'contadores'));
+            await remove(ref(db, 'chamada_ativa'));
+            await remove(ref(db, 'historico')); 
+            await push(ref(db, 'historico'), { acao: 'RESET_TOTAL', hora: h, atendente: emailAtendente });
         }
     };
 
     window.deslogar = () => { 
-        if(confirm("Deseja sair do painel?")) {
-            signOut(auth).then(() => { window.location.href = "login.html"; });
-        }
+        if(confirm("Encerrar sessão?")) signOut(auth).then(() => { window.location.href = "login.html"; });
     };
 
     window.imprimirRelatorio = () => {
         get(ref(db, 'historico')).then((s) => {
             const d = s.val(); 
+            if (!d) return alert("Sem dados.");
             let l = "";
-            if (!d) return alert("Não há dados para gerar relatório.");
-            
             Object.values(d).forEach((i, idx) => {
-                const style = i.acao === 'RESET_TOTAL' ? 'color:red; font-weight:bold' : '';
-                l += `<tr style="${style}"><td>${idx+1}</td><td>${i.senha || '---'}</td><td>${i.acao}</td><td>${i.hora}</td><td>${i.atendente}</td></tr>`;
+                l += `<tr><td>${idx+1}</td><td>${i.senha || '---'}</td><td>${i.acao}</td><td>${i.hora}</td><td>${i.atendente}</td></tr>`;
             });
-            
-            const w = window.open('', '', 'width=900,height=700');
-            w.document.write(`
-                <html><head><title>Relatório de Atendimento</title><style>
-                    body{font-family:Arial,sans-serif; padding:20px}
-                    table{width:100%;border-collapse:collapse;margin-top:20px}
-                    th,td{border:1px solid #ddd;padding:10px;text-align:left}
-                    th{background:#b30000;color:white}
-                    h2{color:#b30000; border-bottom:2px solid #b30000; padding-bottom:10px}
-                </style></head><body>
-                <h2>Relatório de Atendimento - CPS (${new Date().toLocaleDateString()})</h2>
-                <table><tr><th>#</th><th>Senha</th><th>Operação</th><th>Horário</th><th>Atendente</th></tr>${l}</table>
-                <p style="margin-top:20px; font-size:12px; color:gray">Gerado por: ${emailAtendente}</p>
-                </body></html>
-            `);
-            w.document.close();
+            const w = window.open('', '', 'width=800,height=600');
+            w.document.write(`<html><head><style>table{width:100%;border-collapse:collapse} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#b30000;color:white}</style></head><body><h2>Relatório de Atendimento - CPS</h2><table><tr><th>#</th><th>Senha</th><th>Ação</th><th>Hora</th><th>Atendente</th></tr>${l}</table></body></html>`);
             w.print();
         });
     };

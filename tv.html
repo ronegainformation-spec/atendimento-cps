@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
-    <title>Painel TV - CPS</title>
+    <title>Painel TV - CPS | Ronega InfoSec</title>
     <style>
-        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; }
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #1a1a1a; --dark-card: #333; }
+        
         body { 
             font-family: 'Segoe UI', sans-serif; 
             margin: 0; 
@@ -26,17 +27,18 @@
             text-align: center;
             transition: background 0.5s;
         }
+        
         .priority-active { background: var(--gold) !important; color: #000 !important; }
         
-        .logo-container { background: white; padding: 10px 25px; border-radius: 12px; margin-bottom: 20px; }
-        .tv-logo { max-width: 180px; }
+        .logo-container { background: white; padding: 10px 25px; border-radius: 12px; margin-bottom: 15px; }
+        .tv-logo { max-width: 160px; }
 
         #display-box { 
             font-size: 14rem; 
             font-weight: 900; 
             background: white; 
             color: var(--red); 
-            padding: 10px 60px; 
+            padding: 5px 60px; 
             border-radius: 30px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
             margin: 10px;
@@ -49,47 +51,62 @@
         }
 
         .history-footer {
-            background: rgba(255,255,255,0.05);
-            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-top: 2px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--red);
         }
-        .history-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 15px; letter-spacing: 3px; color: #888; }
+
+        .history-title { 
+            font-size: 1rem; 
+            font-weight: bold; 
+            margin-bottom: 10px; 
+            letter-spacing: 3px; 
+            color: #ccc; 
+        }
         
         .history-row {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: center;
             width: 100%;
-            min-height: 100px;
+            min-height: 90px;
         }
+
         .history-card {
             background: rgba(255,255,255,0.1);
-            padding: 15px 25px;
-            border-radius: 15px;
+            padding: 10px 20px;
+            border-radius: 12px;
             text-align: center;
-            min-width: 120px;
-            border-bottom: 4px solid var(--red);
+            min-width: 110px;
+            border-left: 4px solid var(--red);
             animation: fadeIn 0.5s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .history-card strong { font-size: 2.5rem; display: block; color: white; }
-        .history-card span { font-size: 0.9rem; color: #aaa; }
-        
-        .dev-credits {
-            font-size: 0.7rem;
-            color: rgba(255,255,255,0.3);
-            margin-top: 15px;
+        .history-card strong { font-size: 2.2rem; display: block; color: white; }
+        .history-card span { font-size: 0.8rem; color: #aaa; }
+
+        /* RODAPÉ PADRONIZADO RONEGA */
+        .rodape-tv {
+            width: 100%;
+            background-color: #000;
+            color: #666;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 11px;
             letter-spacing: 1px;
+            border-top: 1px solid #222;
         }
 
-        /* Botões de controle atualizados */
-        .controls { position: absolute; bottom: 10px; right: 10px; display: flex; gap: 10px; }
-        .btn-ui { opacity: 0.1; background: #444; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        .rodape-tv strong { color: #aaa; }
+
+        .controls { position: absolute; bottom: 45px; right: 10px; display: flex; gap: 10px; }
+        .btn-ui { opacity: 0.1; background: #444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-size: 10px; }
         .btn-ui:hover { opacity: 1; background: var(--red); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -98,19 +115,19 @@
     <div class="logo-container">
         <img src="logo-cps.png" alt="Logo CPS" class="tv-logo">
     </div>
-    <div style="font-size: 1.8rem; letter-spacing: 8px;">PRÓXIMA SENHA</div>
+    <div style="font-size: 1.5rem; letter-spacing: 6px; font-weight: 300;">PRÓXIMA SENHA</div>
     <div id="display-box">---</div>
-    <div id="label-tipo" style="font-size: 1.5rem; font-weight: bold; margin-top: 10px;">AGUARDANDO...</div>
+    <div id="label-tipo" style="font-size: 1.3rem; font-weight: bold; margin-top: 5px;">AGUARDANDO...</div>
 </div>
 
 <div class="history-footer">
     <div class="history-title">ÚLTIMOS CHAMADOS</div>
     <div class="history-row" id="tv-history"></div>
-    
-    <div class="dev-credits">
-        SISTEMA DESENVOLVIDO POR RONEGA INFORMATION SECURITY | (11) 95499-1772
-    </div>
 </div>
+
+<footer class="rodape-tv">
+    SISTEMA DE CHAMADAS | Desenvolvido por <strong>Ronega Information Security</strong> | CPS &copy; 2025
+</footer>
 
 <div class="controls">
     <button class="btn-ui" onclick="window.location.href='index.html'">🏠 MENU</button>
@@ -143,27 +160,20 @@
         window.speechSynthesis.speak(msg);
     };
 
-    window.ativarSom = () => { 
-        window.falar("Som do painel ativado"); 
-    };
+    window.ativarSom = () => { window.falar("Som do painel ativado"); };
 
     onValue(ref(db, 'chamada_ativa'), (snapshot) => {
         const info = snapshot.val();
-        if (!info) {
-            document.getElementById('display-box').innerText = "---";
-            document.getElementById('label-tipo').innerText = "AGUARDANDO...";
-            document.getElementById('tv').className = 'main-display';
-            return;
-        }
+        if (!info) return;
 
         document.getElementById('display-box').innerText = info.senha;
         document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
         document.getElementById('tv').className = 'main-display ' + (info.tipo === 'P' ? 'priority-active' : '');
         
-        if (info.id !== ultimoIdSom) {
+        if (info.horario !== ultimoIdSom) {
             const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
             window.falar(frase);
-            ultimoIdSom = info.id;
+            ultimoIdSom = info.horario;
             
             const box = document.getElementById('display-box');
             box.style.animation = 'none';
@@ -177,15 +187,11 @@
         const data = snapshot.val();
         
         if (data) {
-            const itensValidos = Object.values(data).filter(item => item.senha);
-            const ordenados = itensValidos.reverse();
-            // Pega as últimas senhas chamadas (excluindo a atual que já está no telão principal)
-            const ultimas = ordenados.slice(1, 6);
-
-            ultimas.forEach(item => {
+            const itens = Object.values(data).reverse().slice(1, 6);
+            itens.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'history-card';
-                card.innerHTML = `<span>${item.hora}</span><strong>${item.senha}</strong>`;
+                card.innerHTML = `<span>SENHA</span><strong>${item.senha}</strong>`;
                 historyRow.appendChild(card);
             });
         }

@@ -1,0 +1,35 @@
+links Github:
+
+painel de atendimento:
+https://ronegainformation-spec.github.io/atendimento-cps/
+
+
+painel para tv:
+https://ronegainformation-spec.github.io/atendimento-cps/tv.html
+
+
+gerador de senhas celular:
+https://ronegainformation-spec.github.io/atendimento-cps/mobile.html
+
+
+gerador de senhas totem:
+https://ronegainformation-spec.github.io/atendimento-cps/totem.html
+
+--------------------------------console.firebase.google  aqui não rodou 100%------------------------------------------------------
+Comandos para atualizar o projeto no Firebase:
+
+Acessar a pasta do projeto:    C:\Users\Adriano\Desktop\Sistema_02
+
+Sincronizar sua conta (se necessário):
+1:
+Bash
+firebase login    este Enviar a atualização:
+2:
+Bash
+firebase deploy --only hosting
+
+
+Project Console: https://console.firebase.google.com/project/sistemacps-743f3/overview
+
+
+https://sistemacps-743f3.web.app

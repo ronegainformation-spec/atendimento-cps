@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta name="robots" content="noindex, nofollow">
+    <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Totem de Senhas - CPS</title>
     <style>
-        :root { --red: #b30000; --gold: #f1c40f; }
+        :root { --red: #b30000; --gold: #f1c40f; --dark: #333; }
         
         body { 
             font-family: 'Segoe UI', sans-serif; 
@@ -20,7 +20,7 @@
             overflow: hidden; 
         }
         
-        /* Link de Administração Atualizado para index.html */
+        /* Link de Administração */
         .btn-admin {
             position: fixed;
             top: 10px;
@@ -35,12 +35,11 @@
             font-weight: bold;
             z-index: 100;
         }
-        .btn-admin:hover { background: rgba(0,0,0,0.1); color: #666; }
 
-        /* Container Central Responsivo */
+        /* Container Central */
         .box { 
             background: white; 
-            padding: 5vh 5vw; 
+            padding: 4vh 5vw; 
             border-radius: 30px; 
             text-align: center; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.1); 
@@ -48,11 +47,12 @@
             max-width: 400px; 
             border-top: 10px solid var(--red);
             box-sizing: border-box;
+            margin-bottom: 50px; /* Espaço para o rodapé */
         }
 
         .box img { 
-            max-width: 150px; 
-            width: 40%;
+            max-width: 130px; 
+            width: 35%;
             margin-bottom: 2vh; 
         }
         
@@ -60,14 +60,14 @@
             color: #333; 
             margin: 0 0 3vh 0; 
             font-weight: 400; 
-            font-size: 1.4rem; 
+            font-size: 1.3rem; 
         }
         
         button.gerar-btn { 
             width: 100%; 
-            padding: 22px; 
+            padding: 20px; 
             margin: 10px 0; 
-            font-size: 1.4rem; 
+            font-size: 1.3rem; 
             font-weight: 800; 
             border: none; 
             border-radius: 15px; 
@@ -86,24 +86,37 @@
         }
         
         #status { 
-            margin-top: 20px; 
+            margin-top: 15px; 
             font-weight: bold; 
             color: var(--red); 
             font-size: 1rem;
             height: 1.2em;
         }
 
-        .totem-footer {
-            margin-top: 20px;
-            font-size: 0.65rem;
+        /* RODAPÉ PADRONIZADO RONEGA INFOSEC */
+        .rodape-global {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--dark);
             color: #aaa;
             text-align: center;
+            padding: 10px 0;
+            font-size: 11px;
+            border-top: 3px solid var(--red);
+            z-index: 1000;
+        }
+
+        .rodape-global strong {
+            color: #fff;
+            font-weight: bold;
         }
 
         /* TICKET DE IMPRESSÃO */
         #ticket { display: none; }
         @media print {
-            .box, .btn-admin, .totem-footer { display: none !important; } 
+            .box, .btn-admin, .rodape-global { display: none !important; } 
             #ticket { 
                 display: block !important; 
                 width: 72mm; 
@@ -111,13 +124,6 @@
                 font-family: monospace;
             }
             .senha-print { font-size: 60pt; font-weight: 900; }
-        }
-
-        @media (max-height: 600px) {
-            .box { padding: 20px; }
-            h2 { font-size: 1.1rem; margin-bottom: 10px; }
-            button.gerar-btn { padding: 15px; font-size: 1.1rem; }
-            .box img { max-width: 100px; }
         }
     </style>
 </head>
@@ -135,9 +141,9 @@
     <div id="status"></div>
 </div>
 
-<div class="totem-footer">
-    DESENVOLVIDO POR RONEGA INFORMATION SECURITY
-</div>
+<footer class="rodape-global">
+    Desenvolvido por <strong>Ronega Information Security</strong> | CPS &copy; 2025
+</footer>
 
 <div id="ticket">
     <div style="font-size: 12pt; font-weight: bold; border-bottom: 1px dashed #000; padding-bottom: 5mm; margin-bottom: 5mm;">
@@ -148,9 +154,6 @@
     <div id="p-data" style="font-size: 10pt; font-weight: bold;"></div>
     <div style="font-size: 8pt; margin-top: 5mm; border-top: 1px dashed #000; padding-top: 3mm;">
         Aguarde sua vez no painel.
-    </div>
-    <div style="font-size: 7pt; margin-top: 3mm; font-weight: bold;">
-        Sistema por Ronega Information Security
     </div>
 </div>
 
@@ -188,7 +191,6 @@
 
                 statusMsg.innerText = "✅ SENHA: " + senhaGerada;
 
-                // Pequeno delay para o DOM atualizar antes de abrir a janela de impressão
                 setTimeout(() => {
                     window.print();
                     statusMsg.innerText = "Retire seu ticket no totem.";
