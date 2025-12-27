@@ -304,7 +304,8 @@
             document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'PRIORIDADE' : 'NORMAL';
             document.getElementById('tv').className = 'tv-side ' + (info.tipo === 'P' ? 'priority-active' : '');
             
-            if (info.id !== ultimoIdSom) {
+            // Lógica de comparação corrigida
+            if (info.id && info.id !== ultimoIdSom) {
                 const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
                 window.falar(frase);
                 ultimoIdSom = info.id;
@@ -333,16 +334,24 @@
     function executarChamada(tipo, numero) {
         const senha = tipo + numero.toString().padStart(3, '0');
         const hora = new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+        // Força ID numérico único para garantir que a TV perceba a mudança
         const id = Date.now().toString();
 
         update(ref(db, 'contadores'), { ['chamada_' + tipo]: numero });
-        set(ref(db, 'chamada_ativa'), { senha, tipo, id });
+        set(ref(db, 'chamada_ativa'), { senha, tipo, id, horario: id }); // horario adicionado por segurança
         push(ref(db, 'historico'), { senha, hora, atendente: emailAtendente, acao: 'CHAMADA' });
     }
 
     window.repetir = () => {
         get(ref(db, 'chamada_ativa')).then(s => {
-            if(s.exists()) update(ref(db, 'chamada_ativa'), { id: Date.now().toString() });
+            if(s.exists()){
+                const dados = s.val();
+                // Atualiza o ID para forçar a TV a falar o mesmo número de novo
+                update(ref(db, 'chamada_ativa'), { 
+                    id: Date.now().toString(),
+                    horario: Date.now().toString() 
+                });
+            }
         });
     };
 

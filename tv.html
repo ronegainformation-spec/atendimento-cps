@@ -107,17 +107,16 @@
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Banner de Aviso de Som */
         #aviso-som {
             position: fixed; top: 0; left: 0; width: 100%; background: var(--red);
-            color: white; text-align: center; padding: 5px; font-weight: bold; z-index: 1000;
-            cursor: pointer;
+            color: white; text-align: center; padding: 12px; font-weight: bold; z-index: 9999;
+            cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body onclick="ativarSom()">
 
-<div id="aviso-som">⚠️ O SOM ESTÁ DESATIVADO - CLIQUE AQUI PARA ATIVAR</div>
+<div id="aviso-som">⚠️ O SOM ESTÁ DESATIVADO - CLIQUE NESTA BARRA PARA ATIVAR</div>
 
 <div class="main-display" id="tv">
     <div class="logo-container">
@@ -162,61 +161,65 @@
     let ultimoIdSom = "";
     let somHabilitado = false;
 
-    // Função de Fala com Reset de Motor
+    // MOTOR DE VOZ REFORÇADO
     window.falar = (texto) => {
         if (!somHabilitado) return;
 
-        // Reset forçado do motor de voz do navegador
+        // Cancela qualquer fala pendente para destravar o motor
         window.speechSynthesis.cancel();
         
+        // Pequeno atraso para o navegador processar o cancelamento
         setTimeout(() => {
             const msg = new SpeechSynthesisUtterance(texto);
             msg.lang = 'pt-BR';
             msg.rate = 0.85;
-            msg.pitch = 1.0;
             msg.volume = 1.0;
             
-            // Evento para debugar se a fala começou
-            msg.onstart = () => console.log("Falando: " + texto);
-            msg.onerror = (e) => console.error("Erro na fala: ", e);
+            // Tenta forçar a seleção da voz em português se disponível
+            const vozes = window.speechSynthesis.getVoices();
+            const vozPT = vozes.find(v => v.lang.includes('pt-BR'));
+            if (vozPT) msg.voice = vozPT;
 
             window.speechSynthesis.speak(msg);
-        }, 50); 
+        }, 100); 
     };
 
     window.ativarSom = () => { 
         somHabilitado = true;
         document.getElementById('aviso-som').style.display = 'none';
-        window.falar("Som ativado com sucesso");
+        
+        // Toca um som vazio para "acordar" o áudio no celular/TV
+        const acordar = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(acordar);
+        
+        window.falar("Som ativado");
     };
 
-    // Escuta a chamada ativa
+    // Escuta Firebase
     onValue(ref(db, 'chamada_ativa'), (snapshot) => {
         const info = snapshot.val();
         if (!info) return;
 
-        // Atualiza a tela (isso está funcionando)
         document.getElementById('display-box').innerText = info.senha;
         document.getElementById('label-tipo').innerText = info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
         document.getElementById('tv').className = 'main-display ' + (info.tipo === 'P' ? 'priority-active' : '');
         
-        // Lógica de áudio disparada pelo horário
+        // Verifica se o horário mudou (nova chamada ou repetição)
         if (info.horario && info.horario !== ultimoIdSom) {
-            console.log("Nova chamada ou repetição detectada!");
+            ultimoIdSom = info.horario;
             
             const frase = (info.tipo === 'P' ? 'Prioridade. Senha ' : 'Senha ') + info.senha.split('').join(' ');
             
+            // Chama a função de fala
             window.falar(frase);
-            ultimoIdSom = info.horario;
 
-            // Animação visual
             const box = document.getElementById('display-box');
             box.style.animation = 'none';
             setTimeout(() => box.style.animation = 'pulse 1.5s infinite alternate', 10);
         }
     });
 
-    // Histórico (Original)
+    // Histórico
     onValue(ref(db, 'historico'), (snapshot) => {
         const historyRow = document.getElementById('tv-history');
         historyRow.innerHTML = ""; 
@@ -231,6 +234,9 @@
             });
         }
     });
+
+    // Carregar vozes preventivamente
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
 </script>
 </body>
 </html>
