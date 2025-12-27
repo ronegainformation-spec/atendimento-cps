@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Senha - CPS</title>
+    <style>
+        :root { --red: #b30000; --gold: #f1c40f; --bg: #0a0a0a; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; background: var(--bg); color: white; 
+            text-align: center; display: flex; flex-direction: column; 
+            min-height: 100vh; 
+        }
+
+        header { 
+            background: var(--red); 
+            padding: 15px; 
+            border-bottom: 3px solid var(--gold); 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .logo-aluno { height: 45px; filter: brightness(0) invert(1); }
+
+        .status-top { 
+            background: #1a1a1a; 
+            color: var(--gold); 
+            padding: 8px; 
+            font-size: 0.7rem; 
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        .main-content { flex: 1; padding: 30px 20px; }
+
+        .label-chamando { color: #888; font-size: 1.2rem; text-transform: uppercase; }
+
+        .senha-atual { 
+            font-size: 8rem; 
+            font-weight: 900; 
+            color: var(--gold); 
+            margin: 10px 0;
+            text-shadow: 0 0 20px rgba(241, 196, 15, 0.2);
+        }
+
+        .tipo-box {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            background: #222;
+            color: #fff;
+            margin-bottom: 40px;
+        }
+
+        .history-container {
+            background: #111;
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .history-title {
+            color: var(--red);
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #222;
+            padding-bottom: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a1a;
+            color: #aaa;
+        }
+
+        .history-item strong { color: #eee; font-size: 1.1rem; }
+
+        footer { 
+            background: #000; 
+            padding: 15px; 
+            font-size: 10px; 
+            color: #444; 
+            border-top: 1px solid #1a1a1a;
+        }
+        footer strong { color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo-cps.png" class="logo-aluno" alt="CPS">
+    </header>
+    <div class="status-top">SISTEMA ATUALIZADO EM TEMPO REAL</div>
+
+    <div class="main-content">
+        <div class="label-chamando">Chamando Agora</div>
+        <div class="senha-atual" id="senha-display">--</div>
+        <div class="tipo-box" id="tipo-display">Aguardando...</div>
+
+        <div class="history-container">
+            <div class="history-title">ÚLTIMOS CHAMADOS</div>
+            <div id="lista-historico">
+                </div>
+        </div>
+    </div>
+
+    <footer>
+        TECNOLOGIA POR <strong>RONEGA INFORMATION SECURITY</strong>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwpjh0QNhJEHowt-04PHUN_3-1XlrCgKg",
+            authDomain: "sistemacps-743f3.firebaseapp.com",
+            databaseURL: "https://sistemacps-743f3-default-rtdb.firebaseio.com",
+            projectId: "sistemacps-743f3",
+            storageBucket: "sistemacps-743f3.firebasestorage.app",
+            messagingSenderId: "127411684616",
+            appId: "1:127411684616:web:e3c9abb4d19287e5a818bd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Monitorar Senha Ativa
+        onValue(ref(db, 'chamada_ativa'), (snapshot) => {
+            const info = snapshot.val();
+            if (info) {
+                document.getElementById('senha-display').innerText = info.senha;
+                document.getElementById('tipo-display').innerText = 
+                    info.tipo === 'P' ? 'ATENDIMENTO PRIORITÁRIO' : 'ATENDIMENTO NORMAL';
+                
+                // Vibrar o celular se o navegador permitir (avisa o aluno discretamente)
+                if ("vibrate" in navigator) navigator.vibrate([200, 100, 200]);
+            }
+        });
+
+        // Monitorar Histórico
+        onValue(ref(db, 'historico'), (snapshot) => {
+            const lista = document.getElementById('lista-historico');
+            lista.innerHTML = "";
+            const data = snapshot.val();
+            
+            if (data) {
+                // Pega as últimas 4 senhas (ignorando a atual que já está no topo)
+                const itens = Object.values(data).reverse().slice(1, 5);
+                itens.forEach(item => {
+                    lista.innerHTML += `
+                        <div class="history-item">
+                            <span>Senha <strong>${item.senha}</strong></span>
+                            <small>${item.tipo === 'P' ? 'Prioridade' : 'Normal'}</small>
+                        </div>
+                    `;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

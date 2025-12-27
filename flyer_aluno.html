@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartaz de Acompanhamento - CPS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { --red: #b30000; --gold: #f1c40f; --black: #0a0a0a; --gray: #1a1a1a; }
+        
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; background: var(--black); color: white; 
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh;
+        }
+
+        .flyer {
+            background: var(--gray);
+            width: 90%;
+            max-width: 450px;
+            padding: 50px 30px;
+            border-radius: 25px;
+            border: 4px solid var(--red);
+            text-align: center;
+            box-shadow: 0 0 50px rgba(179, 0, 0, 0.4);
+        }
+
+        /* Logo visível (Branca) */
+        .logo-cps { 
+            max-width: 160px; 
+            margin-bottom: 20px; 
+            filter: brightness(0) invert(1);
+        }
+
+        h1 { color: var(--gold); font-size: 2.2rem; margin: 0; text-transform: uppercase; }
+        h2 { color: #fff; font-size: 1.2rem; margin-top: 5px; font-weight: 300; }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 30px 0;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .instrucoes {
+            text-align: left;
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            border-left: 4px solid var(--gold);
+        }
+
+        .instrucoes strong { color: var(--gold); }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            font-size: 11px;
+            color: #666;
+            letter-spacing: 1px;
+        }
+        footer strong { color: var(--red); }
+    </style>
+</head>
+<body>
+
+    <div class="flyer">
+        <img src="logo-cps.png" alt="CPS" class="logo-cps">
+        <h1>Acompanhe sua Senha</h1>
+        <h2>Pelo seu celular</h2>
+        
+        <div class="qr-container">
+            <div id="qrcode"></div>
+        </div>
+        
+        <div class="instrucoes">
+            <strong>COMO ACESSAR:</strong><br>
+            1. Abra a câmera do seu celular.<br>
+            2. Aponte para o código acima.<br>
+            3. Acompanhe a fila de onde estiver!
+        </div>
+
+        <footer>
+            SISTEMA CPS | DESENVOLVIDO POR<br>
+            <strong>RONEGA INFORMATION SECURITY</strong>
+        </footer>
+    </div>
+
+    <script>
+        // QR Code apontando para a página do aluno
+        new QRCode(document.getElementById("qrcode"), {
+            text: "https://ronegainformation-spec.github.io/atendimento-cps/aluno.html",
+            width: 250,
+            height: 250,
+            colorDark : "#000000",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+</html>
